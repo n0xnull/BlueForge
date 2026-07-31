@@ -60,7 +60,7 @@ Pada bagian `[daemon]` tambahkan:
 AutomaticLoginEnable=true
 AutomaticLogin=NAMA_USER_KAMU
 ```
-Reboot → VM langsung masuk desktop → aplikasi DHC muncul otomatis. Pengalaman
+Reboot → VM langsung masuk desktop → aplikasi BlueForge muncul otomatis. Pengalaman
 "appliance" yang profesional. ✅
 
 ## Sebelum lomba: tanam celah

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =====================================================================
 # BlueForge — Pasang mode KIOSK di VM peserta.
-# Setelah ini: VM boot -> aplikasi DHC muncul fullscreen otomatis.
+# Setelah ini: VM boot -> aplikasi BlueForge muncul otomatis.
 # Jalankan dari folder repo:  sudo bash agent/kiosk/install-kiosk.sh
 # =====================================================================
 set -euo pipefail
@@ -55,7 +55,7 @@ cat <<EOF
 
 ============================================================
  KIOSK TERPASANG.
- - Aplikasi DHC akan muncul otomatis saat login desktop, dan otomatis
+ - Aplikasi BlueForge akan muncul otomatis saat login desktop, dan otomatis
    membuka lagi sendiri kalau jendela tidak sengaja tertutup peserta.
  - Kalau suatu saat window benar-benar macet/hilang, ada shortcut
    "Restart BlueForge" di Desktop -- tinggal double-click, tidak

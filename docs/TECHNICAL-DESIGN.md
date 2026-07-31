@@ -8,7 +8,7 @@
   ../REVIEW-AND-CONCEPT-v2.md.
 -->
 
-# BlueForge (DHC)
+# BlueForge
 ### Defensive Hardening Competition Platform — Technical Design Document (FINAL)
 
 > **Repo / codename:** `BlueForge` · **Brand:** **BlueForge**
@@ -440,7 +440,7 @@ Semua endpoint **ber-versi** (`/v1`), JSON, HTTPS, dengan header signing (§11.3
 ### 16.1 `POST /v1/register` — registrasi peserta
 **Request**
 ```json
-{ "name": "Budi", "school": "SMK 1", "session_code": "DHC-7Q2X", "image_version": "2026.1" }
+{ "name": "Budi", "school": "SMK 1", "session_code": "BF-7Q2X", "image_version": "2026.1" }
 ```
 **Response 200**
 ```json

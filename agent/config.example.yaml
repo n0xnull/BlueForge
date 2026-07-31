@@ -1,18 +1,17 @@
 # blueforge-agent — konfigurasi (salin ke config.yaml lalu sesuaikan)
 
-# URL portal web (Next.js) — endpoint /v1 ada di bawah URL ini.
-# Contoh produksi: https://blueforge.vercel.app
-portal_url: "http://localhost:3000"
+# URL portal web (Next.js). Ganti dengan URL Vercel kamu saat produksi.
+# Contoh: https://blueforge.vercel.app
+portal_url: "https://blueforge.vercel.app"
 
-# Versi image VM ini (harus cocok dengan yang dikenali server).
-image_version: "2024.04"
+# Versi image VM ini (label bebas, harus cocok dengan yang dikenali server).
+image_version: "2025.01"
 
-# Interval polling (detik). Akan dinaikkan otomatis saat WAITING / kena rate limit.
+# Interval polling ke server (detik). Dinaikkan otomatis saat WAITING / kena rate limit.
 poll_interval_sec: 15
 
 # Port mini web lokal untuk registrasi & status peserta.
-# Default 9090 (bukan 8080) — 8080 sering dipakai proxy Burp Suite/OWASP ZAP
-# di mesin tester, jadi dihindari supaya tidak bentrok.
+# Default 9090 — sengaja bukan 8080 agar tidak bentrok dengan proxy Burp Suite/OWASP ZAP.
 local_ui_port: 9090
 
 # Folder penyimpanan state lokal (token, antrian store-and-forward).

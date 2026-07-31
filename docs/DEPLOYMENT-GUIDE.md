@@ -270,7 +270,7 @@ sudo python3 main.py
 ### 6.1 Buat sesi (sebagai panitia/admin)
 1. Di komputer host, buka **`URL-Vercel/admin`** → login dengan **ADMIN_PASSWORD**.
 2. Isi nama lomba (mis. "Uji Coba #1"), pilih tingkat **Mudah (Easy)** → **+ Buat Sesi**.
-3. Muncul **Kode Sesi**, contoh `DHC-7Q2X`. **Catat.**
+3. Muncul **Kode Sesi**, contoh `BF-7Q2X`. **Catat.**
 
 ### 6.2 Registrasi peserta (di dalam VM)
 1. Di VM, buka **http://localhost:9090**.
