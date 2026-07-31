@@ -73,17 +73,23 @@ reflected on a public leaderboard within seconds, no grader required.
 
 **Leaderboard** — live rank, score, and countdown, no refresh needed.
 
-<img src="assets/Screenshot-leaderboard.png" alt="BlueForge — leaderboard" width="820"/>
+<img src="assets/2-leaderboard%20peserta.png" alt="BlueForge — leaderboard" width="820"/>
+
+*Detailed score checklist is available by clicking a participant on the public leaderboard:*
+
+<img src="assets/7-leaderboard-score-detail.png" alt="BlueForge — leaderboard score detail" width="820"/>
 
 **Admin console** — create sessions, start/pause/stop, manage participants, auto-refreshing.
 
-<img src="assets/Screenshot-admin.png" alt="BlueForge — admin console" width="820"/>
+<img src="assets/1-dashboard%20web%20admin.png" alt="BlueForge — admin dashboard" width="820"/>
+<img src="assets/4-dashboard%20create%20sesi.png" alt="BlueForge — create session" width="820"/>
 
-**Participant kiosk** — a companion window (not fullscreen-lock), so participants can
-still use the terminal to work while registering and tracking their score live.
+**Participant kiosk** — a companion window (not fullscreen-lock), so participants can still use the terminal to work while registering and tracking their score live.
 
-<img src="assets/Screenshot-kiosk_login.png" alt="BlueForge — kiosk registration" width="420"/>
-<img src="assets/Screenshot-kiosk_dashboard.png" alt="BlueForge — kiosk hardening checklist" width="420"/>
+<img src="assets/3-tampilan%20blueforge%20agent%20di%20vm.png" alt="BlueForge — kiosk companion window" width="820"/>
+
+<img src="assets/5-pendaftaran%20peserta.png" alt="BlueForge — kiosk registration" width="410"/>
+<img src="assets/6-soal%20dan%20pertandingan.png" alt="BlueForge — kiosk dashboard checklist" width="410"/>
 
 </div>
 
