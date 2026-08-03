@@ -1,7 +1,21 @@
 # Image VM — BlueForge
 
 > **OVA tidak disimpan di repo** (terlalu besar). Repo hanya menyimpan **script pembangun**.
-> Link unduh OVA + checksum diumumkan di GitHub Releases / Google Drive.
+
+## ⬇️ Download
+
+| File | Link |
+|---|---|
+| **BlueForge VM (.ova)** | [Google Drive — tinyurl.com/BlueForge-VMWare](https://tinyurl.com/BlueForge-VMWare) |
+| **VMware Workstation Player** | [vmware.com/products/workstation-player](https://www.vmware.com/products/workstation-player.html) |
+
+**Cara import:**
+1. Buka VMware → **File → Open** → pilih file `.ova`.
+2. Import → jalankan VM.
+3. Boot → kiosk BlueForge muncul otomatis.
+
+> Setelah import (khusus panitia): jalankan `sudo bash ~/BlueForge/image/build/provision.sh`
+> sekali untuk menanam celah sebelum VM didistribusikan ke peserta.
 
 ## Cara membangun base image (ringkas)
 

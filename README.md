@@ -102,6 +102,24 @@ reflected on a public leaderboard within seconds, no grader required.
 | Runtime | Node.js 20+ (dev/build only — Vercel builds in the cloud) | Python 3.10+, root access (reads `/etc/shadow` etc.) |
 | Network | Public HTTPS endpoint (Vercel) | Outbound HTTPS to that endpoint — agent only *polls out*, so it works fine behind NAT |
 
+## 📦 Download VM Image
+
+> Pre-built VMware image — import and run, no manual provisioning needed.
+
+| File | Link |
+|---|---|
+| 🖥️ **BlueForge VM (VMware .ova)** | [⬇️ Download via Google Drive](https://tinyurl.com/BlueForge-VMWare) |
+| 🔧 **VMware Workstation Player** | [vmware.com/products/workstation-player](https://www.vmware.com/products/workstation-player.html) *(free for non-commercial use)* |
+
+**Import the VM:**
+1. Open VMware → **File → Open** → select the `.ova` file.
+2. Import → start the VM.
+3. Boot → BlueForge kiosk launches automatically. Fill in name + session code from your organizer.
+
+> **Organizer only:** after import, run `sudo bash ~/BlueForge/image/build/provision.sh` once to plant the intentional vulnerabilities before distributing the VM to participants.
+
+---
+
 ## 🚀 Quickstart
 
 ### 1. Database (Supabase)
