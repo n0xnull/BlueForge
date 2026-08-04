@@ -267,8 +267,7 @@ realtime, education, capture-the-flag-alternative -->
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Abil%20Khosim-0A66C2?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/abil-khosim-itsec/)
 
-*BlueForge* is an original project by Abil Khosim, part of the **NoxNull**
-toolkit (Fathom · Flare · BlueForge · Cove). Released under the MIT License —
+*BlueForge* is an original project by Abil Khosim, an independent security tool by Abil Khosim (NoxNull). Released under the MIT License —
 please keep this attribution when reusing or redistributing.
 
 <sub>Stop collecting flags. Start patching real vulnerabilities. 🛡️</sub>
