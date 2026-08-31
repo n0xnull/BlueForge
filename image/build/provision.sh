@@ -50,6 +50,7 @@ systemctl disable --now telnetd >/dev/null 2>&1 || true
 # sudah men-set ulang runtime value-nya.
 sed -i '/^net\.ipv4\.ip_forward/d' /etc/sysctl.conf 2>/dev/null || true
 grep -rl '^net\.ipv4\.ip_forward' /etc/sysctl.d/ 2>/dev/null | xargs -r sed -i '/^net\.ipv4\.ip_forward/d' || true
+rm -f /etc/sysctl.d/99-blueforge-ipforward.conf
 
 echo "== FASE 2/2 — PLANT: menanam 15 celah dari kondisi bersih =="
 
@@ -95,8 +96,18 @@ passwd -d guest2 >/dev/null 2>&1 || true
 # 8 uid0_unique -> akun UID 0 palsu
 id rootkit >/dev/null 2>&1 || useradd -o -u 0 -M -s /bin/bash rootkit 2>/dev/null || true
 
-# 9 ip_forward_disabled -> nyalakan
-sysctl -w net.ipv4.ip_forward=1 >/dev/null 2>&1 || true
+# 9 ip_forward_disabled -> nyalakan (PERSISTEN via drop-in, bukan cuma
+# "sysctl -w" runtime). "sysctl -w" hanya mengubah nilai LIVE di kernel
+# saat script ini dijalankan panitia -- tidak ditulis ke disk. Begitu VM
+# ini di-export ke OVA lalu di-import & di-boot ulang oleh peserta
+# ("start BlueForge"), kernel boot dengan nilai default (0), sehingga
+# poin "Nonaktifkan IP Forwarding" langsung PASS/tercentang sendiri tanpa
+# peserta berbuat apa-apa. Drop-in ini membuat nilai 1 bertahan lintas
+# reboot, sama seperti celah-celah lain yang memang disk-backed.
+cat > /etc/sysctl.d/99-blueforge-ipforward.conf <<'EOF'
+net.ipv4.ip_forward=1
+EOF
+sysctl --system >/dev/null 2>&1 || sysctl -p /etc/sysctl.d/99-blueforge-ipforward.conf >/dev/null 2>&1 || true
 
 # 10 password_max_days -> set 99999
 if grep -q '^PASS_MAX_DAYS' /etc/login.defs; then

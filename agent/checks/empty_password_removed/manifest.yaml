@@ -6,6 +6,6 @@ is_penalty: false
 must_stay_passing: false
 category: account
 difficulty_tags: [medium, hard]
-hint_basic: "Cek /etc/shadow — akun dengan field password kosong berbahaya."
+hint_basic: "Cek /etc/shadow — akun dengan field password kosong berbahaya. Setelah memperbaiki, verifikasi field password-nya benar-benar TIDAK kosong lagi (mis. sudo grep <user> /etc/shadow) — sebagian cara mengunci akun tidak selalu mengubah field ini kalau password sebelumnya memang kosong."
 hint_advanced: "Set field password langsung: sudo usermod -p '!' <user>  (paling pasti — passwd -l bisa tidak konsisten pada akun berpassword kosong). Alternatif: sudo deluser --remove-home <user>"
 schema_version: "1.0"
