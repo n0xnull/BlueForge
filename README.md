@@ -71,6 +71,10 @@ reflected on a public leaderboard within seconds, no grader required.
 
 <div align="center">
 
+**Live demo** — a participant's fix lands, the kiosk score updates instantly, and the public leaderboard catches up moments later — no manual refresh anywhere.
+
+<img src="assets/0-live-demo.gif" alt="BlueForge — live scoring demo" width="820"/>
+
 **Leaderboard** — live rank, score, and countdown, no refresh needed.
 
 <img src="assets/2-leaderboard%20peserta.png" alt="BlueForge — leaderboard" width="820"/>

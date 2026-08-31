@@ -6,6 +6,7 @@ Taruh file branding & screenshot di sini — README.md di root sudah mereferensi
 |---|---|---|
 | `blueforge-icon-256.png` | Logo di header README | 256×256 |
 | `blueforge-horizontal-1200.png` | Banner di bawah tagline | ~1200×400 |
+| `0-live-demo.gif` | README.md (Screenshots, item pertama) | Cuplikan live: kiosk peserta & leaderboard publik update otomatis begitu satu soal fix terdeteksi |
 | `1-dashboard web admin.png` | README.md (Screenshots) | Tampilan utama dashboard admin Vercel |
 | `2-leaderboard peserta.png` | README.md (Screenshots) | Tampilan leaderboard publik |
 | `3-tampilan blueforge agent di vm.png` | README.md (Screenshots) | Tampilan agent mendampingi terminal di VM |
