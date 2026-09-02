@@ -1,9 +1,11 @@
 code: suid_bash_removed
-title: "Hapus Shell Backdoor Berbit SUID"
-description: "Salinan shell berbit SUID pada /usr/local/bin/rootbash merupakan backdoor yang memberikan hak akses root secara instan dan harus dihapus."
+title: Hapus Shell Backdoor Berbit SUID
+description: Berkas eksekusi shell berhak akses istimewa (SUID binary) yang tidak
+  sah di sistem harus ditemukan dan dihapus.
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: privilege
-difficulty_tags: [hard]
-schema_version: "1.0"
+difficulty_tags:
+- hard
+schema_version: '1.0'

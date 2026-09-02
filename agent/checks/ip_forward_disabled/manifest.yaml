@@ -1,9 +1,0 @@
-code: ip_forward_disabled
-title: "Nonaktifkan IP Forwarding"
-description: "Parameter kernel net.ipv4.ip_forward harus bernilai 0, karena sistem peserta bukan merupakan router dan tidak boleh meneruskan paket antar-jaringan."
-points: 10
-is_penalty: false
-must_stay_passing: false
-category: network
-difficulty_tags: [medium, hard]
-schema_version: "1.0"

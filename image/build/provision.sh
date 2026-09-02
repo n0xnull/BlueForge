@@ -165,21 +165,13 @@ id rootkit >/dev/null 2>&1 || useradd -o -u 0 -M -s /bin/bash rootkit 2>/dev/nul
 id dhcspy1 >/dev/null 2>&1 || useradd -o -u 1500 -M -s /usr/sbin/nologin dhcspy1 2>/dev/null || true
 id dhcspy2 >/dev/null 2>&1 || useradd -o -u 1500 -M -s /usr/sbin/nologin dhcspy2 2>/dev/null || true
 
-# 9 ip_forward_disabled -> nyalakan (PERSISTEN via drop-in, bukan cuma
-# "sysctl -w" runtime). "sysctl -w" hanya mengubah nilai LIVE di kernel
-# saat script ini dijalankan panitia -- tidak ditulis ke disk. Begitu VM
-# ini di-export ke OVA lalu di-import & di-boot ulang oleh peserta
-# ("start BlueForge"), kernel boot dengan nilai default (0), sehingga
-# poin "Nonaktifkan IP Forwarding" langsung PASS/tercentang sendiri tanpa
-# peserta berbuat apa-apa. Drop-in ini membuat nilai 1 bertahan lintas
-# reboot, sama seperti celah-celah lain yang memang disk-backed.
-cat > /etc/sysctl.d/99-blueforge-ipforward.conf <<'EOF'
-net.ipv4.ip_forward=1
-EOF
+# 9 root_home_perm -> buat direktori /root world-readable & world-executable (777)
+# agar peserta harus memperbaiki izin akses /root menjadi mode 700 atau 750.
+chmod 777 /root
+rm -f /etc/sysctl.d/99-blueforge-ipforward.conf 2>/dev/null || true
 
-# 21-25 (v0.4) — 5 parameter sysctl tambahan, drop-in terpisah supaya tidak
-# tercampur dengan ip_forward (biar tiap drop-in tetap fokus 1 tema, mudah
-# dibaca ulang). Sama-sama PERSISTEN lintas reboot, alasan identik di atas.
+# 21-25 (v0.4) — 5 parameter sysctl tambahan, drop-in terpisah
+# PERSISTEN lintas reboot.
 cat > /etc/sysctl.d/99-blueforge-hardening.conf <<'EOF'
 net.ipv4.tcp_syncookies=0
 kernel.randomize_va_space=0
@@ -187,7 +179,7 @@ net.ipv4.conf.all.accept_redirects=1
 net.ipv4.conf.all.accept_source_route=1
 fs.suid_dumpable=2
 EOF
-sysctl --system >/dev/null 2>&1 || sysctl -p /etc/sysctl.d/99-blueforge-ipforward.conf /etc/sysctl.d/99-blueforge-hardening.conf >/dev/null 2>&1 || true
+sysctl --system >/dev/null 2>&1 || sysctl -p /etc/sysctl.d/99-blueforge-hardening.conf >/dev/null 2>&1 || true
 
 # 10 password_max_days -> set 99999
 if grep -q '^PASS_MAX_DAYS' /etc/login.defs; then

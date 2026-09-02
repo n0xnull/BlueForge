@@ -1,10 +1,11 @@
 code: rogue_crontab_removed
-title: "Hapus Cron Job Pribadi yang Mencurigakan"
-description: "Selain /etc/cron.d, setiap pengguna dapat memiliki jadwal cron miliknya sendiri (per-user crontab). Akun layanan \"svc-backup\" memiliki jadwal cron mencurigakan yang harus dihapus."
+title: Hapus Cron Job Pribadi yang Mencurigakan
+description: Jadwal tugas pribadi (per-user crontab) pada akun layanan yang tidak
+  sah harus dibersihkan dari sistem.
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: persistence
-difficulty_tags: [fitcom]
-hint_basic: "Bukan cuma /etc/cron.d yang bisa menjadwalkan tugas -- setiap akun user juga bisa punya jadwal cron miliknya sendiri (per-user crontab). Periksa apakah salah satu akun di sistem (bukan akunmu sendiri) punya jadwal cron pribadi yang mencurigakan."
-schema_version: "1.0"
+difficulty_tags:
+- fitcom
+schema_version: '1.0'

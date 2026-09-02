@@ -1,10 +1,11 @@
 code: duplicate_uid_removed
-title: "Hapus Akun dengan UID Kembar (Duplicate UID)"
-description: "Setiap akun pengguna (selain root) harus memiliki UID yang unik. Ditemukan dua akun berbeda yang berbagi UID yang sama, artinya keduanya punya hak akses identik di level sistem -- salah satunya harus dihapus."
+title: Hapus Akun dengan UID Kembar (Duplicate UID)
+description: Setiap akun pengguna pada sistem harus memiliki pengenal numerik unik
+  (UID), tidak boleh ada dua akun yang berbagi UID yang sama.
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: account
-difficulty_tags: [fitcom]
-hint_basic: "UID (User ID) semestinya unik per akun. Periksa apakah ada dua akun berbeda di /etc/passwd yang diam-diam berbagi UID yang sama (selain root) -- itu artinya keduanya punya hak akses identik di level sistem."
-schema_version: "1.0"
+difficulty_tags:
+- fitcom
+schema_version: '1.0'

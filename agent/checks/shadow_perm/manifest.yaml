@@ -1,9 +1,15 @@
 code: shadow_perm
-title: "Perbaiki Izin Akses Berkas /etc/shadow"
-description: "Berkas /etc/shadow tidak boleh dapat dibaca oleh pengguna lain (world-readable); izin akses yang benar adalah mode 640 atau yang lebih ketat."
+title: Perbaiki Izin Akses Berkas /etc/shadow
+description: Berkas enkripsi kata sandi sistem (/etc/shadow) harus dibatasi izin aksesnya
+  agar tidak dapat dibaca oleh pengguna umum.
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: permission
-difficulty_tags: [easy, medium, hard]
-schema_version: "1.0"
+difficulty_tags:
+- easy
+- medium
+- hard
+schema_version: '1.0'
+hint_basic: Gunakan perintah 'chmod 640 /etc/shadow' atau 'chmod o-rwx /etc/shadow'
+  untuk mencabut izin akses world-readable.

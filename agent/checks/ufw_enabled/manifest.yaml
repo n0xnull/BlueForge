@@ -1,9 +1,15 @@
 code: ufw_enabled
-title: "Aktifkan Firewall UFW"
-description: "Firewall UFW pada sistem harus dalam status aktif (active) untuk menyaring lalu lintas jaringan yang masuk."
+title: Aktifkan Firewall UFW
+description: Sistem harus dilindungi oleh firewall internal yang aktif untuk menyaring
+  dan membatasi lalu lintas jaringan masuk.
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: firewall
-difficulty_tags: [easy, medium, hard]
-schema_version: "1.0"
+difficulty_tags:
+- easy
+- medium
+- hard
+schema_version: '1.0'
+hint_basic: Aktifkan firewall dengan perintah 'ufw enable' dan pastikan statusnya
+  'active' via 'ufw status'.

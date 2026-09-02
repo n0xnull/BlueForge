@@ -50,22 +50,9 @@ reflected on a public leaderboard within seconds, no grader required.
   easiest-to-hardest order**, not just a random or insertion-order list —
   both the kiosk and the admin panel display that exact number next to
   every question.
-- 💡 **Hints that guide, never answer** — only a minority of checks
-  (~25%) carry a hint at all, and every hint is deliberately *directional*
-  ("check what's listening on your network ports") rather than a
-  copy-pasteable command. There is no hint tier that hands out the literal
-  fix.
-- ⚖️ **Fair & evidence-backed anti-cheat** — a Baseline & Evidence system
-  snapshots each VM at registration/START/STOP, so fixing a check *before*
-  START doesn't earn points (closes the "pre-fix" loophole). This isn't just
-  enforced silently server-side: the admin's participant view marks any
-  such check with a **red checkmark + "anomaly" badge**, so organizers can
-  actually see who tried to pre-fix before deciding on further action.
-- 🚫 **Disqualify that actually sticks** — clicking DQ freezes a
-  participant's status for good: the agent stops scoring, the participant's
-  own kiosk shows a clear "disqualified" banner, and every layer (heartbeat,
-  score submission, even re-registration) is blocked from silently
-  reversing it.
+- 💡 **Hints that guide & instruct (30% hint policy)** — 30% of checks carry a hint (20% conceptual guiding hints, 10% command/example hints) randomly distributed across Easy to Hard difficulty tiers, while 70% remain hintless to encourage independent analysis.
+- ⚖️ **Fair & evidence-backed anti-cheat** — a Baseline & Evidence system snapshots each VM at registration/START/STOP, so fixing a check *before* START doesn't earn points (closes the "pre-fix" loophole). Pre-fix checks are visually marked with a **red checkmark (`✔`) + "Pre-fix" badge** across the Admin Panel, Leaderboard, and Participant Kiosk UI.
+- 🚫 **Disqualify with instant alerts & visual badges** — clicking DQ freezes a participant's status: the agent stops scoring, an instant popup alert modal + persistent banner appears on the participant's VM kiosk, and the public Leaderboard displays a prominent red badge (`🚨 DIDISKUALIFIKASI`) with strikethrough score.
 - ⚡ **Truly live scoring** — leaderboard polls + Supabase Realtime, admin
   console auto-refreshes participant status, and the agent's clock-skew
   correction means scores keep flowing even when a cloned VM's system clock
@@ -225,11 +212,11 @@ START`) → sign and send. Full design in
 ## 🗺️ Roadmap
 
 - **v0.2** — 15 checks across 3 real difficulty tiers, kiosk companion app, admin auto-refresh, agent clock-skew fix.
-- **v0.4** *(current)* — 30 checks total (+15 new), a dedicated **FITCOM**
+- **v0.4** *(current)* — 30 checks total (+15 new, including `root_home_perm`), a dedicated **FITCOM**
   preset (all 30, sized for a ~2.5h event) with checks in genuine
-  easiest-to-hardest order, guiding-only hints on ~25% of checks, admin
-  anti-cheat indicators (red checkmark for pre-fix), a disqualify flow that
-  actually sticks, nonce anti-replay, admin login rate limiting, CSV export,
+  easiest-to-hardest order, 30% hint policy (20% conceptual, 10% command) randomly distributed,
+  instant DQ alert popups + leaderboard badges, red checkmark pre-fix indicators across all UIs,
+  nonce anti-replay, admin login rate limiting, CSV export,
   and an agent that survives a participant's VM crashing or rebooting
   mid-round without losing their session.
 - **Next up** — richer plugin API for community-contributed checks, an

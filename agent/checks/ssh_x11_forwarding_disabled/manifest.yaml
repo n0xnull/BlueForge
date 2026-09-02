@@ -1,9 +1,11 @@
 code: ssh_x11_forwarding_disabled
-title: "Nonaktifkan X11 Forwarding SSH"
-description: "Konfigurasi SSH tidak boleh mengizinkan X11 forwarding; parameter X11Forwarding pada /etc/ssh/sshd_config harus bernilai \"no\"."
+title: Nonaktifkan X11 Forwarding SSH
+description: Fitur penerusan antarmuka grafis (X11 Forwarding) pada SSH harus dinonaktifkan
+  untuk mencegah potensi pencurian sesi tampilan.
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: ssh
-difficulty_tags: [fitcom]
-schema_version: "1.0"
+difficulty_tags:
+- fitcom
+schema_version: '1.0'

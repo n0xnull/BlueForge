@@ -201,6 +201,7 @@ class Runtime:
                     "code": code,
                     "title": hints.get(code, {}).get("title", code),
                     "passed": self.current_state.get(code, False),
+                    "eligible": bd.get(code, {}).get("eligible", True),
                     "hint": hints.get(code, {}).get("hint"),
                     "points": c.points if c else 10,
                 })

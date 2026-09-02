@@ -1,10 +1,13 @@
 code: cron_writable_script_removed
-title: "Amankan Script yang Dijalankan Cron sebagai Root"
-description: "Tugas terjadwal /etc/cron.d/dhc-backup menjalankan script /opt/dhc/backup.sh sebagai root. Script tersebut saat ini dapat ditulis oleh sembarang pengguna (world-writable), sehingga siapa pun bisa menyisipkan perintah dan mendapat eksekusi sebagai root. Perbaiki izin akses script tersebut (atau hapus mekanisme cron-nya)."
+title: Amankan Script yang Dijalankan Cron sebagai Root
+description: Naskah otomatis (script) yang dijalankan secara berkala dengan hak akses
+  root tidak boleh dapat diubah atau ditulis oleh pengguna biasa.
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: persistence
-difficulty_tags: [fitcom]
-hint_basic: "Ada tugas terjadwal (cron) yang menjalankan sebuah script sebagai root -- masalahnya bukan pada jadwalnya, tapi pada IZIN AKSES script yang dijalankan itu. Periksa siapa saja yang boleh MENULIS ke script tersebut."
-schema_version: "1.0"
+difficulty_tags:
+- fitcom
+hint_basic: Periksa berkas skrip yang dipanggil oleh tugas terjadwal root. Masalahnya
+  ada pada hak akses tulis publik (world-writable) skrip tersebut.
+schema_version: '1.0'

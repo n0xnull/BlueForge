@@ -61,7 +61,7 @@ yang sama saat testing — hasilnya selalu deterministik.
 | passwd_perm | `/etc/passwd` di-chmod 666 |
 | empty_password_removed | user `guest2` tanpa password |
 | uid0_unique | user `rootkit` ber-UID 0 |
-| ip_forward_disabled | `net.ipv4.ip_forward=1` |
+| root_home_perm | `/root` di-chmod 777 |
 | password_max_days | `PASS_MAX_DAYS 99999` di login.defs |
 | ssh_permitempty_disabled | `PermitEmptyPasswords yes` di sshd_config |
 | world_writable_removed | `/opt/dhc/secret.txt` di-chmod 777 |

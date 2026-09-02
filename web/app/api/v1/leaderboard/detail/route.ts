@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
 
   const { data: pchecks } = await db
     .from("participant_checks")
-    .select("check_code, passed, scored_points")
+    .select("check_code, passed, eligible, scored_points")
     .eq("participant_id", participantId);
   const statusByCode = new Map((pchecks ?? []).map((pc) => [pc.check_code, pc]));
 
@@ -66,6 +66,7 @@ export async function GET(req: NextRequest) {
       category: c?.category ?? null,
       points: c?.points ?? 10,
       passed: s?.passed ?? false,
+      eligible: s ? s.eligible : true,
       scored_points: s?.scored_points ?? 0,
     };
   });

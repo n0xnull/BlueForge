@@ -165,5 +165,5 @@ tr.detail-row:hover { background: transparent; }
    Tetap ditampilkan sbg centang (memang sudah dikerjakan), tapi MERAH,
    bukan hijau, supaya panitia langsung sadar itu tidak sah/tidak dapat
    poin -- lihat web/app/admin/page.tsx & api/v1/admin/participants. */
-.detail-item.anomaly { color: var(--fg); }
-.detail-item.anomaly .detail-icon { color: var(--danger); }
+.detail-item.anomaly { color: var(--fg); font-weight: 600; }
+.detail-item.anomaly .detail-icon { color: var(--danger) !important; font-weight: 900; }

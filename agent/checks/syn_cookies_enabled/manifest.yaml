@@ -1,9 +1,11 @@
 code: syn_cookies_enabled
-title: "Aktifkan Perlindungan SYN Cookies"
-description: "Parameter kernel net.ipv4.tcp_syncookies harus bernilai 1, untuk melindungi sistem dari serangan SYN flood (DoS) yang menghabiskan tabel koneksi."
+title: Aktifkan Perlindungan SYN Cookies
+description: Fitur perlindungan kernel terhadap serangan banjir jaringan (SYN Flood
+  DoS) harus diaktifkan.
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: network
-difficulty_tags: [fitcom]
-schema_version: "1.0"
+difficulty_tags:
+- fitcom
+schema_version: '1.0'

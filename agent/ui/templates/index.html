@@ -91,12 +91,27 @@
     <input id="code" placeholder="mis. BF-7Q2X" style="text-transform:uppercase">
     <button id="btn-reg" onclick="doRegister()">Daftar</button>
     <div id="reg-msg" class="msg muted"></div>
+    <!-- BANNER DISKUALIFIKASI -->
+  <div class="card hidden" id="dq-banner" style="border-color:var(--danger);background:linear-gradient(180deg,rgba(255,93,93,.2),var(--bg2));box-shadow:0 0 20px rgba(255,93,93,.3)">
+    <div style="font-weight:900;font-size:18px;color:var(--danger);display:flex;align-items:center;gap:8px">
+      <span>🚨</span> <span>KAMU TELAH DIDISKUALIFIKASI PANITIA</span>
+    </div>
+    <div style="font-size:13.5px;margin-top:6px;color:#ff8a8a">
+      Pengerjaan setelah ini <b>TIDAK AKAN DIHITUNG</b>. Jika menurutmu ini kekeliruan, segera hubungi panitia secara langsung.
+    </div>
   </div>
 
-  <!-- BANNER DISKUALIFIKASI -->
-  <div class="card hidden" id="dq-banner" style="border-color:var(--danger);background:linear-gradient(180deg,rgba(255,93,93,.12),var(--bg2))">
-    <div style="font-weight:800;font-size:16px;color:var(--danger)">⚠ Kamu telah DIDISKUALIFIKASI panitia</div>
-    <div class="muted" style="font-size:13px;margin-top:4px">Pengerjaan setelah ini TIDAK akan dihitung. Kalau menurutmu ini keliru, segera hubungi panitia langsung -- jangan lanjut mengerjakan.</div>
+  <!-- MODAL OVERLAY DISKUALIFIKASI -->
+  <div id="dq-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);align-items:center;justify-content:center;padding:20px">
+    <div style="background:#151c2e;border:2px solid var(--danger);border-radius:16px;padding:28px 24px;max-width:440px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(255,93,93,.4)">
+      <div style="font-size:52px;line-height:1;margin-bottom:12px">🚨</div>
+      <div style="font-size:22px;font-weight:900;color:var(--danger);margin-bottom:10px">KAMU DIDISKUALIFIKASI!</div>
+      <div style="font-size:14px;color:var(--fg);margin-bottom:20px;line-height:1.5">
+        Panitia telah mengubah status kamu menjadi <b>DIDISKUALIFIKASI</b>.<br>
+        Seluruh pengerjaan dan skor kamu telah dibekukan.
+      </div>
+      <button onclick="document.getElementById('dq-modal').style.display='none'" style="background:var(--danger);color:#fff;font-weight:800;padding:10px 24px">Tutup Notifikasi</button>
+    </div>
   </div>
 
   <!-- DASHBOARD -->
@@ -136,43 +151,49 @@ async function doRegister(){
     else { msg.className='msg warnc'; msg.textContent='⚠ '+(j.error||'Gagal'); btn.disabled=false; }
   }catch(e){ msg.className='msg warnc'; msg.textContent='⚠ Tidak bisa menghubungi agent.'; btn.disabled=false; }
 }
-const STATE_LABEL={waiting:'MENUNGGU',running:'BERLANGSUNG',paused:'JEDA',ended:'SELESAI',registered:'SIAP',init:'—'};
-function fmt(s){ if(s==null||s<0)return '--:--'; const m=Math.floor(s/60),x=s%60;
-  return String(m).padStart(2,'0')+':'+String(x).padStart(2,'0'); }
+const STATE_LABEL={waiting:'Menunggu',running:'Berlangsung',paused:'Jeda',ended:'Selesai',archived:'Arsip'};
+function fmt(sec){
+  if(sec==null||sec<0) return '--:--';
+  const m=Math.floor(sec/60), s=sec%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
 function updateConn(st){
   const dot=document.getElementById('dot'), txt=document.getElementById('conn-text');
-  let cls='warn', label='Menyambung…';
-  if(st.connection==='ok'){
-    if(st.last_sync_sec!=null && st.last_sync_sec>40){ cls='warn'; label='Sinkron tertunda ('+st.last_sync_sec+'s lalu)'; }
-    else { cls='ok'; label='Terhubung'+(st.last_sync_sec!=null?' · '+st.last_sync_sec+'s lalu':''); }
-  } else if(st.connection==='error'){ cls='err'; label='Terputus — coba Sinkron'; }
-  else { cls='warn'; label='Menyambung…'; }
+  if(!st||!st.registered){ setConn('err','Belum terdaftar'); return; }
+  const c=st.connection||'ok';
+  if(c==='ok') setConn('ok','Terhubung ke server');
+  else if(c==='connecting') setConn('warn','Menyambungkan…');
+  else setConn('err','Koneksi terputus');
+}
+function setConn(cls,label){
+  const dot=document.getElementById('dot'), txt=document.getElementById('conn-text');
   dot.className='dot '+cls; txt.textContent=label;
 }
-// Hint disembunyikan default, muncul/hilang saat baris soal diklik. Disimpan
-// di Set terpisah (bukan cuma class CSS) karena #checks di-render ULANG
-// setiap poll (2 detik) -- kalau cuma toggle class, status buka/tutup akan
-// ke-reset tiap kali poll jalan. code jadi key supaya tetap konsisten
-// walau urutan/isi checks berubah antar-poll.
 const openHints = new Set();
 function toggleHint(code){
   if(openHints.has(code)) openHints.delete(code); else openHints.add(code);
   renderChecks(lastChecks);
 }
 let lastChecks = [];
-let wasRegistered = false;  // deteksi transisi registered:true -> false (sesi hilang di server)
+let wasRegistered = false;
+let wasDq = false;
 function renderChecks(checks){
   lastChecks = checks;
   document.getElementById('checks-count').textContent = checks.length ? ('No. 1–'+checks.length+' · urut dari yang termudah') : '';
   document.getElementById('checks').innerHTML = checks.map((c,i)=>{
-    const icon=c.passed?'<span class="ok">✔ Selesai</span>':'<span class="warnc">◻ Belum</span>';
+    const isPreFix = c.passed && c.eligible === false;
+    const icon = isPreFix
+      ? '<span class="dot err" style="display:inline-block;margin-right:4px"></span><span class="err" style="font-weight:800" title="Lulus sebelum START -- tidak mendapat poin">✔ Lulus sebelum START (0 Poin)</span>'
+      : c.passed
+      ? '<span class="ok">✔ Selesai</span>'
+      : '<span class="warnc">◻ Belum</span>';
     const hasHint = !c.passed && !!c.hint;
     const isOpen = hasHint && openHints.has(c.code);
     const toggleLabel = hasHint ? `<span class="hint-toggle">${isOpen?'▾ sembunyikan':'▸ lihat hint'}</span>` : '';
     const hintBox = isOpen ? `<div class="hint">${c.hint}</div>` : '';
     const rowAttrs = hasHint ? `class="row has-hint" onclick="toggleHint('${c.code}')"` : `class="row"`;
     return `<div ${rowAttrs}><div><div class="chk-title"><span class="chk-no">${i+1}</span>${c.title||c.code}${toggleLabel}</div>${hintBox}</div>
-      <div style="text-align:right;white-space:nowrap">${icon} <span class="pill">+${c.points}</span></div></div>`;
+      <div style="text-align:right;white-space:nowrap">${icon} <span class="pill">+${isPreFix?0:c.points}</span></div></div>`;
   }).join('');
 }
 async function doRefresh(){
@@ -190,21 +211,25 @@ async function poll(){
       document.getElementById('register-card').classList.add('hidden');
       document.getElementById('status-card').classList.remove('hidden');
       document.getElementById('who').textContent=st.name+(st.school?' · '+st.school:'');
-      document.getElementById('dq-banner').classList.toggle('hidden', !st.disqualified);
-      document.getElementById('state').textContent=st.disqualified?'DIDISKUALIFIKASI':(STATE_LABEL[st.state]||(st.state||'—').toUpperCase());
-      document.getElementById('state').style.color=st.disqualified?'var(--danger)':'';
+      
+      const isDq = !!st.disqualified;
+      if(isDq && !wasDq){
+        wasDq = true;
+        document.getElementById('dq-modal').style.display = 'flex';
+        try{ alert('🚨 PERHATIAN: Kamu telah DIDISKUALIFIKASI oleh panitia!'); }catch(e){}
+      }
+      
+      document.getElementById('dq-banner').classList.toggle('hidden', !isDq);
+      document.getElementById('state').textContent=isDq?'DIDISKUALIFIKASI':(STATE_LABEL[st.state]||(st.state||'—').toUpperCase());
+      document.getElementById('state').style.color=isDq?'var(--danger)':'';
       document.getElementById('score').textContent=st.score??0;
       const t=document.getElementById('timer'); t.textContent=fmt(st.remaining_sec);
       t.style.color=(st.remaining_sec!=null&&st.remaining_sec<60)?'var(--danger)':'var(--fg)';
     } else {
-      // registered baru saja balik jadi false (bukan cuma belum pernah
-      // daftar sama sekali) -- server sudah tidak kenal peserta ini lagi
-      // (baris dihapus panitia / DB direset). Tampilkan lagi form
-      // registrasi dgn pesan jelas, JANGAN biarkan dashboard lama nyangkut
-      // di layar seolah semua baik-baik saja.
       document.getElementById('status-card').classList.add('hidden');
       document.getElementById('checks-card').classList.add('hidden');
       document.getElementById('dq-banner').classList.add('hidden');
+      document.getElementById('dq-modal').style.display = 'none';
       document.getElementById('register-card').classList.remove('hidden');
       if(wasRegistered){
         const msg=document.getElementById('reg-msg');

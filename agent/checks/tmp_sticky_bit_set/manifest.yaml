@@ -1,9 +1,11 @@
 code: tmp_sticky_bit_set
-title: "Pasang Kembali Sticky Bit pada /tmp"
-description: "Direktori /tmp harus memiliki sticky bit aktif agar pengguna tidak dapat menghapus atau mengganti nama berkas milik pengguna lain di direktori bersama tersebut."
+title: Pasang Kembali Sticky Bit pada /tmp
+description: Direktori penyimpanan sementara (/tmp) harus memiliki atribut sticky
+  bit aktif demi mencegah pengrusakan berkas antar pengguna.
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: permission
-difficulty_tags: [fitcom]
-schema_version: "1.0"
+difficulty_tags:
+- fitcom
+schema_version: '1.0'

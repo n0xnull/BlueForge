@@ -1,10 +1,15 @@
 code: ssh_root_disabled
-title: "Nonaktifkan Login Root melalui SSH"
-description: "Konfigurasi SSH tidak boleh mengizinkan autentikasi root secara langsung; parameter PermitRootLogin pada /etc/ssh/sshd_config harus bernilai \"no\"."
+title: Nonaktifkan Login Root melalui SSH
+description: Konfigurasi layanan SSH harus diamankan agar tidak mengizinkan autentikasi
+  langsung sebagai pengguna superuser (root).
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: ssh
-difficulty_tags: [easy, medium, hard]
-hint_basic: "Login root langsung lewat SSH kemungkinan masih diizinkan. Periksa parameter terkait login root di berkas konfigurasi SSH daemon, lalu pastikan service SSH membaca ulang konfigurasi setelah diubah."
-schema_version: "1.0"
+difficulty_tags:
+- easy
+- medium
+- hard
+hint_basic: Periksa berkas konfigurasi SSH daemon untuk opsi pembatasan login root.
+  Setelah diubah, pastikan layanan membaca ulang konfigurasi.
+schema_version: '1.0'

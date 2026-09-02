@@ -1,9 +1,11 @@
 code: cron_backdoor_removed
-title: "Hapus Cron Job Backdoor"
-description: "Berkas terjadwal /etc/cron.d/dhc-backdoor merupakan mekanisme persistence yang tidak sah dan harus dihapus."
+title: Hapus Cron Job Backdoor
+description: Jadwal tugas otomatis (cron job) yang mencurigakan di direktori cron
+  sistem harus dibersihkan.
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: persistence
-difficulty_tags: [hard]
-schema_version: "1.0"
+difficulty_tags:
+- hard
+schema_version: '1.0'

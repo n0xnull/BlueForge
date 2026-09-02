@@ -1,10 +1,12 @@
 code: uid0_unique
-title: "Pastikan Hanya Root yang Memiliki UID 0"
-description: "Tidak boleh ada akun selain root yang memiliki User ID (UID) bernilai 0, karena hal tersebut setara dengan hak akses root."
+title: Pastikan Hanya Root yang Memiliki UID 0
+description: Tidak boleh terdapat akun pengguna biasa yang berbagi User ID (UID 0)
+  dengan akun superuser (root).
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: account
-difficulty_tags: [medium, hard]
-hint_basic: "Cari akun lain (selain root) yang memiliki User ID setara root. Saat mencoba menghapusnya, kamu mungkin ditolak dengan alasan akun 'sedang digunakan' -- itu bukan error sungguhan, itu terjadi karena UID-nya kembar dengan root; cari opsi pada perintah penghapusan user yang bisa memaksa (force) melewati pengecekan itu."
-schema_version: "1.0"
+difficulty_tags:
+- medium
+- hard
+schema_version: '1.0'

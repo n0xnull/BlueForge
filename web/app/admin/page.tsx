@@ -285,12 +285,13 @@ export default function Admin() {
                                     const anomaly = c.eligible === false;
                                     const cls = anomaly ? "anomaly" : c.passed ? "pass" : "fail";
                                     return (
-                                      <div key={c.code} className={"detail-item " + cls}
-                                        title={anomaly ? "Lulus sebelum START -- eligible=false, tidak dapat poin" : undefined}>
-                                        <span className="detail-icon">{anomaly || c.passed ? "✔" : "✗"}</span>
-                                        <span className="detail-no">{i + 1}.</span>
-                                        <span>{c.title}</span>
-                                      </div>
+                                       <div key={c.code} className={"detail-item " + cls}
+                                         title={anomaly ? "Lulus sebelum START -- eligible=false, tidak dapat poin" : undefined}>
+                                         <span className="detail-icon">{anomaly || c.passed ? "✔" : "✗"}</span>
+                                         <span className="detail-no">{i + 1}.</span>
+                                         <span>{c.title}</span>
+                                         {anomaly && <span className="small" style={{ color: "var(--danger)", fontWeight: 700, marginLeft: 4 }}>(Pre-fix)</span>}
+                                       </div>
                                     );
                                   })}
                                 </div>

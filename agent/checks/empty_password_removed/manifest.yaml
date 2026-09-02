@@ -1,10 +1,14 @@
 code: empty_password_removed
-title: "Hapus Akun dengan Kata Sandi Kosong"
-description: "Tidak boleh terdapat akun login dengan kata sandi kosong pada berkas /etc/shadow."
+title: Hapus Akun dengan Kata Sandi Kosong
+description: Setiap akun pengguna yang terdaftar di sistem wajib memiliki kata sandi
+  atau dalam status terkunci (tidak boleh kosong).
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: account
-difficulty_tags: [medium, hard]
-hint_basic: "Cari akun pengguna dengan kolom kata sandi yang BENAR-BENAR kosong di berkas kredensial sistem. Setelah kamu perbaiki, pastikan kolom itu betul-betul tidak kosong lagi -- sebagian cara mengunci akun tidak selalu mengubah kolom ini kalau sebelumnya memang kosong."
-schema_version: "1.0"
+difficulty_tags:
+- medium
+- hard
+hint_basic: Telusuri berkas kredensial sistem untuk menemukan akun tanpa hash kata
+  sandi. Kunci akun tersebut atau tetapkan kata sandi yang valid.
+schema_version: '1.0'

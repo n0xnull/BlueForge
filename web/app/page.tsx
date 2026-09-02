@@ -7,7 +7,7 @@ type Row = { participant_id: string; full_name: string; school: string | null;
 type Comp = { id: string; name: string; difficulty: string; status: string;
   ends_at_ms: number | null; server_time_ms: number } | null;
 type CheckItem = { code: string; title: string; category: string | null;
-  points: number; passed: boolean; scored_points: number };
+  points: number; passed: boolean; eligible?: boolean; scored_points: number };
 type Detail = { participant: { full_name: string; school: string | null; status: string };
   difficulty: string | null; passed_count: number; total_count: number; checks: CheckItem[] };
 
@@ -123,6 +123,7 @@ export default function Leaderboard() {
             {rows.map((r) => {
               const isOpen = openId === r.participant_id;
               const d = detailCache[r.participant_id];
+              const isDq = r.status === "disqualified";
               return (
                 <Fragment key={r.participant_id}>
                   <tr className={(r.rank === 1 ? "top1 " : "") + "score-row"}
@@ -131,17 +132,32 @@ export default function Leaderboard() {
                     <td>
                       <span style={{ fontWeight: 600 }}>{r.full_name}</span>
                       {r.status === "offline" && <span className="small muted"> · offline</span>}
-                      {r.status === "disqualified" && <span className="small" style={{ color: "var(--danger)" }}> · DQ</span>}
+                      {isDq && (
+                        <span className="badge" style={{ marginLeft: 8, background: "rgba(255,93,93,.25)", color: "var(--danger)", fontWeight: 800 }}>
+                          🚨 DIDISKUALIFIKASI
+                        </span>
+                      )}
                     </td>
                     <td className="muted">{r.school ?? "—"}</td>
                     <td className="score">
-                      {r.total_score}
+                      {isDq ? (
+                        <span style={{ color: "var(--danger)" }}>
+                          <s style={{ opacity: 0.7 }}>{r.total_score}</s> <span style={{ fontSize: 12 }}>(DQ)</span>
+                        </span>
+                      ) : (
+                        r.total_score
+                      )}
                       <span className="detail-caret">{isOpen ? "▲" : "▼"}</span>
                     </td>
                   </tr>
                   {isOpen && (
                     <tr className="detail-row">
                       <td colSpan={4}>
+                        {isDq && (
+                          <div style={{ background: "rgba(255,93,93,.16)", border: "1px solid var(--danger)", borderRadius: 8, padding: "8px 12px", color: "var(--danger)", fontWeight: 800, marginBottom: 12 }}>
+                            🚨 PESERTA INI TELAH DIDISKUALIFIKASI OLEH PANITIA
+                          </div>
+                        )}
                         {detailLoading === r.participant_id && !d && (
                           <div className="small muted">Memuat rincian…</div>
                         )}
@@ -151,12 +167,18 @@ export default function Leaderboard() {
                               {d.passed_count} / {d.total_count} soal selesai
                             </div>
                             <div className="detail-grid">
-                              {d.checks.map((c) => (
-                                <div key={c.code} className={"detail-item " + (c.passed ? "pass" : "fail")}>
-                                  <span className="detail-icon">{c.passed ? "✔" : "✗"}</span>
-                                  <span>{c.title}</span>
-                                </div>
-                              ))}
+                              {d.checks.map((c) => {
+                                const isPreFix = c.passed && c.eligible === false;
+                                const cls = isPreFix ? "anomaly" : c.passed ? "pass" : "fail";
+                                return (
+                                  <div key={c.code} className={"detail-item " + cls}
+                                    title={isPreFix ? "Lulus sebelum START -- tidak mendapat poin" : undefined}>
+                                    <span className="detail-icon">{isPreFix || c.passed ? "✔" : "✗"}</span>
+                                    <span>{c.title}</span>
+                                    {isPreFix && <span className="small" style={{ color: "var(--danger)", fontWeight: 700, marginLeft: 4 }}>(Pre-fix)</span>}
+                                  </div>
+                                );
+                              })}
                             </div>
                           </>
                         )}

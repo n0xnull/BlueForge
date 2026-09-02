@@ -1,9 +1,11 @@
 code: password_min_days_set
-title: "Terapkan Batas Minimum Pergantian Kata Sandi"
-description: "Nilai PASS_MIN_DAYS pada /etc/login.defs harus minimal 1 hari, agar pengguna tidak dapat langsung mengganti kata sandi berkali-kali untuk menghindari kebijakan riwayat password."
+title: Terapkan Batas Minimum Pergantian Kata Sandi
+description: Kebijakan kata sandi harus menetapkan batas waktu minimum antar perubahan
+  kata sandi untuk mencegah manipulasi riwayat kata sandi.
 points: 10
 is_penalty: false
 must_stay_passing: false
 category: policy
-difficulty_tags: [fitcom]
-schema_version: "1.0"
+difficulty_tags:
+- fitcom
+schema_version: '1.0'
