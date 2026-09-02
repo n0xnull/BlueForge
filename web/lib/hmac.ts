@@ -21,9 +21,17 @@ function signCanonical(secret: string, method: string, path: string, body: strin
 }
 
 /** Verifikasi request agen ber-signing.
+ *
+ *  `db` opsional: kalau diberikan, sekalian tegakkan anti-replay (TDD §37 --
+ *  tabel `nonces` sudah ada di schema sejak v0.1 tapi sebelumnya TIDAK
+ *  PERNAH benar-benar dicek di sini, jadi request ber-signing valid bisa
+ *  di-replay bebas dalam jendela toleransi 5 menit). Caller cukup lewatkan
+ *  `supabaseAdmin()` yang sudah dibuatnya sendiri -- lihat pemanggilan di
+ *  masing-masing route (state/score/snapshot/heartbeat).
+ *
  *  Return { ok, participantId } atau { ok:false, reason }. */
 export async function verifyAgentRequest(
-  req: NextRequest, path: string, rawBody: string
+  req: NextRequest, path: string, rawBody: string, db?: { from: (table: string) => any }
 ): Promise<{ ok: true; participantId: string } | { ok: false; reason: string }> {
   const participantId = req.headers.get("x-participant") || "";
   const ts = req.headers.get("x-timestamp") || "";
@@ -45,5 +53,28 @@ export async function verifyAgentRequest(
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
     return { ok: false, reason: "bad signature" };
   }
+
+  if (db) {
+    // (participant_id, nonce) adalah primary key -- insert gagal dgn unique
+    // violation berarti nonce ini SUDAH PERNAH dipakai peserta yang sama =
+    // request sedang di-replay, tolak. Kegagalan lain (mis. tabel belum
+    // ke-migrate / DB sedang bermasalah) sengaja TIDAK memblokir seluruh
+    // sesi lomba -- fail-open utk lapisan pertahanan opsional ini, hanya
+    // di-log. Blokir keras hanya utk replay yang benar-benar terdeteksi.
+    try {
+      const { error } = await db.from("nonces").insert({ participant_id: participantId, nonce });
+      if (error) {
+        const code = (error as any).code;
+        const msg = String((error as any).message || "");
+        if (code === "23505" || /duplicate/i.test(msg)) {
+          return { ok: false, reason: "replay detected" };
+        }
+        console.warn("nonce_check_failed", msg);
+      }
+    } catch (e: any) {
+      console.warn("nonce_check_exception", e?.message);
+    }
+  }
+
   return { ok: true, participantId };
 }

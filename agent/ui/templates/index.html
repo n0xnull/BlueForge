@@ -37,6 +37,9 @@
     .row{display:flex;justify-content:space-between;align-items:center;padding:13px 4px;border-bottom:1px solid var(--line)}
     .row:last-child{border-bottom:0}
     .chk-title{font-weight:600}
+    .chk-no{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;
+      padding:0 6px;margin-right:8px;border-radius:7px;background:#1b2440;color:var(--mut);
+      font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums;vertical-align:2px}
     .hint{font-size:12px;color:var(--mut);margin-top:5px;max-width:52ch;padding:8px 10px;
       background:#0c1220;border:1px solid var(--line);border-radius:8px}
     .hint-toggle{font-size:11px;font-weight:700;color:var(--acc);margin-left:8px;
@@ -90,6 +93,12 @@
     <div id="reg-msg" class="msg muted"></div>
   </div>
 
+  <!-- BANNER DISKUALIFIKASI -->
+  <div class="card hidden" id="dq-banner" style="border-color:var(--danger);background:linear-gradient(180deg,rgba(255,93,93,.12),var(--bg2))">
+    <div style="font-weight:800;font-size:16px;color:var(--danger)">⚠ Kamu telah DIDISKUALIFIKASI panitia</div>
+    <div class="muted" style="font-size:13px;margin-top:4px">Pengerjaan setelah ini TIDAK akan dihitung. Kalau menurutmu ini keliru, segera hubungi panitia langsung -- jangan lanjut mengerjakan.</div>
+  </div>
+
   <!-- DASHBOARD -->
   <div class="card hidden" id="status-card">
     <div class="hero">
@@ -108,7 +117,7 @@
 
   <!-- CHECKLIST -->
   <div class="card hidden" id="checks-card">
-    <div style="font-weight:800;font-size:16px;margin-bottom:8px">Tugas Hardening</div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><span style="font-weight:800;font-size:16px">Tugas Hardening</span><span class="muted" id="checks-count" style="font-size:12px"></span></div>
     <div id="checks"></div>
   </div>
 </div>
@@ -151,16 +160,18 @@ function toggleHint(code){
   renderChecks(lastChecks);
 }
 let lastChecks = [];
+let wasRegistered = false;  // deteksi transisi registered:true -> false (sesi hilang di server)
 function renderChecks(checks){
   lastChecks = checks;
-  document.getElementById('checks').innerHTML = checks.map(c=>{
+  document.getElementById('checks-count').textContent = checks.length ? ('No. 1–'+checks.length+' · urut dari yang termudah') : '';
+  document.getElementById('checks').innerHTML = checks.map((c,i)=>{
     const icon=c.passed?'<span class="ok">✔ Selesai</span>':'<span class="warnc">◻ Belum</span>';
     const hasHint = !c.passed && !!c.hint;
     const isOpen = hasHint && openHints.has(c.code);
     const toggleLabel = hasHint ? `<span class="hint-toggle">${isOpen?'▾ sembunyikan':'▸ lihat hint'}</span>` : '';
     const hintBox = isOpen ? `<div class="hint">${c.hint}</div>` : '';
     const rowAttrs = hasHint ? `class="row has-hint" onclick="toggleHint('${c.code}')"` : `class="row"`;
-    return `<div ${rowAttrs}><div><div class="chk-title">${c.title||c.code}${toggleLabel}</div>${hintBox}</div>
+    return `<div ${rowAttrs}><div><div class="chk-title"><span class="chk-no">${i+1}</span>${c.title||c.code}${toggleLabel}</div>${hintBox}</div>
       <div style="text-align:right;white-space:nowrap">${icon} <span class="pill">+${c.points}</span></div></div>`;
   }).join('');
 }
@@ -175,13 +186,32 @@ async function poll(){
     const st=await (await fetch('/status')).json();
     updateConn(st);
     if(st.registered){
+      wasRegistered=true;
       document.getElementById('register-card').classList.add('hidden');
       document.getElementById('status-card').classList.remove('hidden');
       document.getElementById('who').textContent=st.name+(st.school?' · '+st.school:'');
-      document.getElementById('state').textContent=STATE_LABEL[st.state]||(st.state||'—').toUpperCase();
+      document.getElementById('dq-banner').classList.toggle('hidden', !st.disqualified);
+      document.getElementById('state').textContent=st.disqualified?'DIDISKUALIFIKASI':(STATE_LABEL[st.state]||(st.state||'—').toUpperCase());
+      document.getElementById('state').style.color=st.disqualified?'var(--danger)':'';
       document.getElementById('score').textContent=st.score??0;
       const t=document.getElementById('timer'); t.textContent=fmt(st.remaining_sec);
       t.style.color=(st.remaining_sec!=null&&st.remaining_sec<60)?'var(--danger)':'var(--fg)';
+    } else {
+      // registered baru saja balik jadi false (bukan cuma belum pernah
+      // daftar sama sekali) -- server sudah tidak kenal peserta ini lagi
+      // (baris dihapus panitia / DB direset). Tampilkan lagi form
+      // registrasi dgn pesan jelas, JANGAN biarkan dashboard lama nyangkut
+      // di layar seolah semua baik-baik saja.
+      document.getElementById('status-card').classList.add('hidden');
+      document.getElementById('checks-card').classList.add('hidden');
+      document.getElementById('dq-banner').classList.add('hidden');
+      document.getElementById('register-card').classList.remove('hidden');
+      if(wasRegistered){
+        const msg=document.getElementById('reg-msg');
+        msg.className='msg warnc';
+        msg.textContent='Sesi sebelumnya tidak lagi dikenali server. Isi ulang data yang SAMA persis (nama & sekolah) untuk melanjutkan progres kamu.';
+        wasRegistered=false;
+      }
     }
     if(st.checks&&st.checks.length){
       document.getElementById('checks-card').classList.remove('hidden');

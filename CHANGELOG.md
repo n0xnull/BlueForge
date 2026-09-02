@@ -4,6 +4,108 @@ Semua perubahan penting dicatat di sini. Format: [Keep a Changelog](https://keep
 versi mengikuti [SemVer](https://semver.org) (TDD §24).
 
 ## [Unreleased]
+### Added — v0.4 (persiapan lomba FITCOM, Universitas Dinamika)
+- **+15 soal baru (total 30, dari 15)**: `ftp_disabled`, `ssh_x11_forwarding_disabled`,
+  `ssh_max_auth_tries_limited`, `tmp_sticky_bit_set`, `password_min_days_set`,
+  `syn_cookies_enabled`, `aslr_enabled`, `icmp_redirects_disabled`,
+  `source_routing_disabled`, `core_dump_restricted`, `unsafe_path_removed`,
+  `rogue_crontab_removed`, `cron_writable_script_removed`,
+  `duplicate_uid_removed`, `backdoor_listener_removed`. Masing-masing
+  punya celah tertanam sendiri di `image/build/provision.sh` (2 layanan
+  palsu baru: `dhc-ftpd` port 21, `dhc-listener` port 4444 — pola identik
+  `dhc-telnetd`) supaya soal tidak pernah "PASS sendiri" tanpa peserta
+  berbuat apa-apa. Diverifikasi lewat `tests/test_new_checks_sandbox.py`
+  (fixture sintetis kondisi rentan vs sudah-diperbaiki utk tiap check).
+- **Preset baru `fitcom`** (`db/seed/difficulties.sql`,
+  `db/migrations/0002_fitcom_preset.sql`): 30 soal (superset penuh), durasi
+  default 2 jam 30 menit, dipakai khusus lomba FITCOM. Preset Easy/Medium/
+  Hard lama TIDAK berubah (tetap 6/11/15 soal, masih dipakai utk latihan).
+  **Urutan No.1-30 (revisi)**: draf awal cuma menaruh 15 soal baru di
+  belakang 15 soal lama (bukan urut kesulitan sungguhan). Diperbaiki jadi
+  3 pita nyata -- No.1-11 setara Easy (edit satu baris config/hapus akun),
+  No.12-21 setara Medium (kombinasi file/sysctl kernel), No.22-30 setara
+  Hard (perlu investigasi/penemuan) -- dan urutan array `active_check_codes`
+  ini SEKARANG benar-benar dipakai sbg urutan tampil (kiosk agent & panel
+  admin keduanya diberi nomor "No. X" eksplisit, bukan cuma daftar tanpa
+  urutan).
+- **Hint dirombak jadi guiding-only**: `agent/runner/check_runner.py` tidak
+  lagi pernah mengembalikan `hint_advanced` (command jawaban langsung) —
+  hint yang tampil di kiosk peserta SEKARANG SELALU cuma mengarahkan
+  (`hint_basic`), dan hanya ~25% soal (8 dari 30) yang punya hint sama
+  sekali. Field `hint_advanced` di schema/seed dipertahankan demi
+  kompatibilitas tapi selalu di-null-kan & tidak pernah dibaca lagi.
+- **Indikator anti-curang di admin "Lihat peserta"**: rincian per-soal kini
+  ditampilkan (centang hijau = lulus sah, centang MERAH = `eligible=false`
+  alias sudah lulus SEBELUM panitia klik START / pre-fix, badge "⚠ Anomali
+  start" di baris peserta yang bersangkutan). Sebelumnya panitia sama
+  sekali tidak bisa melihat data anti pre-fix yang sebenarnya sudah
+  dihitung server sejak v0.1 (`participant_checks.eligible`) — cuma
+  memengaruhi skor diam-diam tanpa indikator visual apa pun.
+  (`web/app/api/v1/admin/participants/route.ts`, `web/app/admin/page.tsx`)
+- **Export CSV hasil lomba** dari admin (`GET /api/v1/admin/export?comp=`) —
+  peringkat/nama/sekolah/status/skor/jumlah soal selesai (sah), utk
+  sertifikat & laporan panitia tanpa query manual ke Supabase.
+- **Anti-replay nonce diaktifkan**: tabel `nonces` sudah ada sejak v0.1 tapi
+  tak pernah benar-benar dicek — `verifyAgentRequest` (`web/lib/hmac.ts`)
+  sekarang menegakkannya di 4 endpoint agen (state/score/snapshot/heartbeat),
+  fail-open kalau infra DB bermasalah supaya tidak memblokir seluruh lomba.
+- **Rate limit percobaan login admin** (`web/app/api/v1/admin/login/route.ts`)
+  — dibackend ke `event_logs` (bukan in-memory) supaya efektif di
+  lingkungan serverless; 6 percobaan gagal/10 menit per IP lalu diblokir.
+- **Agen tahan crash/reboot VM ("worst case" peserta punya sudo penuh)**:
+  sebelumnya seluruh status registrasi (`participant_id`, `agent_secret`)
+  cuma hidup di memori proses -- proses/VM mati karena apa pun (exception
+  tak tertangkap, `sudo reboot`/`sudo pkill python3` tak sengaja, VM hang)
+  berarti peserta wajib isi form registrasi lagi, dan itu DITOLAK server
+  (unique constraint `competition_id,full_name,school`) karena baris
+  lamanya masih ada -- peserta terkunci total sampai panitia turun tangan
+  manual. Diperbaiki 2 lapis: (1) `agent/main.py` sekarang menulis sesi ke
+  `session_state.json` lokal segera setelah registrasi & memuatnya ulang
+  otomatis saat proses start, jadi restart proses/VM biasa PULIH SENDIRI
+  tanpa peserta sadar; (2) sebagai jaring pengaman, `POST /api/v1/register`
+  sekarang idempoten per identitas -- konflik unique diperlakukan sebagai
+  RESUME (kembalikan kredensial peserta yang sama, secret diturunkan ulang
+  deterministik) alih-alih ditolak 409, KECUALI peserta itu berstatus
+  `disqualified` (supaya "daftar ulang" tidak jadi celah lolos DQ).
+  `image/build/provision.sh` juga dibersihkan agar tidak pernah
+  mewariskan `session_state.json` sisa uji-coba ke VM peserta lewat
+  golden image.
+- **Loop utama agen (`agent/main.py`) bisa mati total karena satu
+  exception tak terduga**: `sync_once()` tidak dibungkus try/except sama
+  sekali di loop utama, dan `get_state()` cuma menangkap error jaringan
+  (bukan body 200 yang ternyata bukan JSON valid). systemd `Restart=always`
+  jadi jaring pengaman terakhir, tapi tiap crash tetap membuang satu siklus
+  poll penuh. Sekarang tiap iterasi loop dibungkus try/except, dan
+  `get_state()` menangani body non-JSON dengan aman.
+
+- **`image/build/provision.sh` sekarang otomatis membersihkan command
+  history** (`~/.bash_history` root & user login `cyber`) sebagai langkah
+  TERAKHIRnya -- sebelumnya ini command manual terpisah yang gampang
+  terlewat ("Hapus history terminal" di guide). VM master dipakai
+  berulang kali utk uji coba sebelum export, jadi riwayat command bisa
+  numpuk & membocorkan cara vulnerability ditanam / jalan pintas jawaban
+  kalau sampai kebawa ke image final yang di-clone ke semua peserta.
+
+### Fixed — v0.4
+- **Tombol DQ (diskualifikasi) tidak benar-benar bekerja**: akar masalahnya
+  `POST /api/v1/heartbeat` SELALU menulis `status:"online"` tanpa syarat
+  apa pun — begitu agent peserta yang di-DQ mengirim heartbeat berikutnya
+  (~15-20 detik), status di database langsung ketiban balik "online" lagi,
+  seolah DQ tak pernah terjadi. `/api/v1/score` juga tidak pernah mengecek
+  status PESERTA (hanya status sesi), jadi peserta yang di-DQ tetap bisa
+  terus menambah skor. Diperbaiki di 3 lapis: heartbeat tidak lagi menimpa
+  status `disqualified`; score menolak submit dari peserta `disqualified`
+  (403); `/api/v1/state` sekarang mengirim `participant_status` supaya
+  agent (`agent/main.py`) berhenti mengirim skor & kiosk lokal menampilkan
+  banner "Kamu telah DIDISKUALIFIKASI panitia". UI admin
+  (`partAction` di `web/app/admin/page.tsx`) sebelumnya juga tidak pernah
+  mengecek `response.ok` — kegagalan apa pun (mis. sesi admin kedaluwarsa)
+  tetap menampilkan toast "berhasil", menutupi kegagalan sungguhan.
+- **Toast notifikasi admin (`className="toast"`) tidak punya definisi CSS
+  sama sekali** di `globals.css` — tampil sbg teks polos tanpa posisi/gaya,
+  gampang tidak kelihatan panitia saat lomba ramai. Ditambahkan style toast
+  mengambang yang semestinya.
+
 ### Changed
 - **Rebrand: abilithic DHC → BlueForge**, part of the NoxNull toolkit
   (studio: [n0xnull](https://github.com/n0xnull)). New electric-blue /

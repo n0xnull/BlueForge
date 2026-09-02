@@ -6,6 +6,4 @@ is_penalty: false
 must_stay_passing: false
 category: privilege
 difficulty_tags: [hard]
-hint_basic: "Cari file SUID mencurigakan: ls -l /usr/local/bin/rootbash"
-hint_advanced: "Hapus: sudo rm -f /usr/local/bin/rootbash"
 schema_version: "1.0"

@@ -1,0 +1,9 @@
+code: source_routing_disabled
+title: "Nonaktifkan Source Routing"
+description: "Parameter kernel net.ipv4.conf.all.accept_source_route harus bernilai 0, agar sistem menolak paket dengan rute sumber (source-routed packets) yang dapat dipakai untuk melewati kontrol jaringan."
+points: 10
+is_penalty: false
+must_stay_passing: false
+category: network
+difficulty_tags: [fitcom]
+schema_version: "1.0"

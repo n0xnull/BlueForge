@@ -25,6 +25,16 @@ class ApiClient:
         self.participant_id = None
         self.secret = None
         self._queue = []  # store-and-forward: list of (path, payload)
+        # Sinyal spesifik utk main.py: True HANYA saat server sudah TEGAS
+        # bilang "participant tidak dikenal" (baris peserta hilang dari DB --
+        # mis. dihapus panitia lewat admin, atau DB direset). Dipisah dari
+        # error 401 lain (timestamp skew, replay, signature) yang SIFATNYA
+        # SEMENTARA dan TIDAK BOLEH memicu penghapusan sesi lokal -- kalau
+        # semua 401 dianggap sama, satu hiccup jaringan bisa bikin agen
+        # "lupa" peserta yang sebenarnya masih valid, padahal registrasi
+        # ulang akan DITOLAK server (unique constraint), jadi peserta
+        # terkunci total dari sesi lomba. Lihat Runtime.sync_once().
+        self.participant_not_found = False
         # Koreksi jam lokal VM vs jam server (TDD/ADR clock-skew, lihat sync_clock()).
         # Tanpa ini, VM dengan jam salah (umum pada clone/template VMware tanpa
         # NTP) akan gagal jendela toleransi timestamp server (±5 menit) dan
@@ -89,11 +99,31 @@ class ApiClient:
         raise RuntimeError(f"register gagal: {resp.status_code} {resp.text[:200]}")
 
     def get_state(self):
-        """Return dict state atau None bila gagal (caller anggap OFFLINE)."""
+        """Return dict state atau None bila gagal (caller anggap OFFLINE).
+
+        Selain None/dict, method ini SEKALIGUS men-set
+        `self.participant_not_found` saat server eksplisit bilang baris
+        peserta ini sudah tidak ada -- lihat komentar di __init__."""
+        self.participant_not_found = False
         try:
             resp = self._get("/api/v1/state", query=f"?t={int(time.time() * 1000)}")
             if resp.status_code == 200:
-                return resp.json()
+                try:
+                    return resp.json()
+                except ValueError as e:
+                    # respons 200 tapi body bukan JSON valid (mis. halaman
+                    # error HTML dari proxy/CDN) -- jangan sampai exception
+                    # ini menjatuhkan seluruh loop utama, anggap saja OFFLINE
+                    # utk siklus ini dan coba lagi siklus berikutnya.
+                    self.log.warn("state_bad_json", error=str(e))
+                    return None
+            if resp.status_code == 401:
+                try:
+                    body = resp.json()
+                except ValueError:
+                    body = {}
+                if "tidak dikenal" in str(body.get("error", "")):
+                    self.participant_not_found = True
             self.log.warn("state_non200", code=resp.status_code)
         except requests.RequestException as e:
             self.log.warn("state_network_error", error=str(e))

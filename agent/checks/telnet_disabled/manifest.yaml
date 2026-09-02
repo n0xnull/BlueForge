@@ -6,6 +6,5 @@ is_penalty: false
 must_stay_passing: false
 category: service
 difficulty_tags: [easy, medium, hard]
-hint_basic: "Cek apakah ada layanan di port 23 (telnet)."
-hint_advanced: "Matikan service simulasinya: sudo systemctl disable --now dhc-telnetd"
+hint_basic: "Ada layanan yang masih mendengarkan koneksi di port Telnet (23). Telusuri layanan apa yang aktif di port tersebut, lalu nonaktifkan secara permanen lewat manajer service (bukan cuma dihentikan sesaat, supaya tidak otomatis menyala lagi)."
 schema_version: "1.0"

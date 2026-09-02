@@ -1,0 +1,9 @@
+code: ftp_disabled
+title: "Nonaktifkan Layanan FTP Palsu"
+description: "Tidak boleh terdapat layanan yang listening pada port TCP 21 (FTP), mengingat protokol FTP standar mengirimkan kredensial dalam bentuk plaintext."
+points: 10
+is_penalty: false
+must_stay_passing: false
+category: service
+difficulty_tags: [fitcom]
+schema_version: "1.0"

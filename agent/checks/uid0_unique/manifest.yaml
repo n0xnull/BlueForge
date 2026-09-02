@@ -6,6 +6,5 @@ is_penalty: false
 must_stay_passing: false
 category: account
 difficulty_tags: [medium, hard]
-hint_basic: "Cek UID 0 di /etc/passwd — hanya root yang boleh. Perintah hapus akun standar bisa ditolak karena akun ini berbagi UID 0 dengan root (dianggap 'sedang dipakai') — cek opsi paksa (force) pada man page perintahnya."
-hint_advanced: "Hapus akun UID 0 palsu: sudo userdel -f <user>  (WAJIB pakai -f: userdel biasa menolak dengan \"user is currently used by process\" karena akun ini berbagi UID 0 dengan root, dan root selalu punya banyak proses berjalan)"
+hint_basic: "Cari akun lain (selain root) yang memiliki User ID setara root. Saat mencoba menghapusnya, kamu mungkin ditolak dengan alasan akun 'sedang digunakan' -- itu bukan error sungguhan, itu terjadi karena UID-nya kembar dengan root; cari opsi pada perintah penghapusan user yang bisa memaksa (force) melewati pengecekan itu."
 schema_version: "1.0"

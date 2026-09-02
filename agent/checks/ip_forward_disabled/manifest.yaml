@@ -6,6 +6,4 @@ is_penalty: false
 must_stay_passing: false
 category: network
 difficulty_tags: [medium, hard]
-hint_basic: "Cek: cat /proc/sys/net/ipv4/ip_forward (harus 0)"
-hint_advanced: "Matikan: sudo sysctl -w net.ipv4.ip_forward=0"
 schema_version: "1.0"

@@ -81,7 +81,9 @@ git push -u origin main
 2. Buka file `db/schema.sql` di komputer, **copy seluruh isinya**, paste ke editor.
 3. Klik **Run** (atau Ctrl+Enter). Pastikan muncul **Success**. ✅
 4. Klik **+ New query** lagi. Buka `db/seed/difficulties.sql`, copy-paste, **Run**.
-   Ini mengisi 3 tingkat (Easy/Medium/Hard) + 15 check Linux. ✅
+   Ini mengisi 3 tingkat lama (Easy/Medium/Hard, 15 check) + preset "fitcom"
+   baru (30 check, dipakai lomba FITCOM). Kalau database sudah lama ada,
+   jalankan dulu `db/migrations/0002_fitcom_preset.sql` sebelum seed ini. ✅
 
 ### 2.3 Ambil kunci API (penting untuk Langkah 3)
 1. Menu kiri → **Project Settings** (ikon gerigi) → **API**.
@@ -241,7 +243,7 @@ Agar ada yang bisa di-hardening, jalankan skrip penanam celah:
 cd ~/BlueForge
 sudo bash image/build/provision.sh
 ```
-Ini akan (sengaja) menanam **15 celah keamanan** (root login SSH aktif, UFW mati,
+Ini akan (sengaja) menanam **30 celah keamanan** (root login SSH aktif, UFW mati,
 telnet terpasang, user rogue, permission longgar, backdoor SUID, dst. — lihat
 `image/build/provision.sh`). Tingkat kesulitan yang dipilih nanti di admin
 (Easy/Medium/Hard) menentukan subset mana yang benar-benar dinilai. ✅
@@ -310,7 +312,7 @@ Kalau semua ini berhasil, **v0.1 kamu resmi jalan end-to-end.** 🚀
 # Hapus history terminal (VM clone jangan bocorkan command user sebelumnya)
 cat /dev/null > ~/.bash_history && history -c && history -w
 
-# Build soal (tanam 15 celah keamanan) di VM
+# Build soal (tanam 30 celah keamanan) di VM
 cd ~/BlueForge
 git pull
 sudo bash image/build/provision.sh

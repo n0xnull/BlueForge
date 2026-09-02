@@ -1,0 +1,10 @@
+code: unsafe_path_removed
+title: "Hapus Direktori Tidak Aman dari PATH Sistem"
+description: "Variabel PATH global (system-wide) tidak boleh menyertakan direktori yang dapat ditulis oleh sembarang pengguna (seperti direktori kerja saat ini \".\"), karena hal ini memungkinkan serangan PATH hijacking terhadap perintah yang dijalankan pengguna lain, termasuk root."
+points: 10
+is_penalty: false
+must_stay_passing: false
+category: permission
+difficulty_tags: [fitcom]
+hint_basic: "Salah satu berkas konfigurasi shell/login menambahkan direktori yang bisa ditulis siapa saja ke dalam variabel PATH -- ini bisa dieksploitasi untuk menjalankan program palsu saat user lain (termasuk root) memanggil perintah umum. Telusuri berkas konfigurasi profil/login system-wide (bukan punya satu user saja)."
+schema_version: "1.0"

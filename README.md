@@ -191,7 +191,8 @@ START`) → sign and send. Full design in
 
 ## 🗺️ Roadmap
 
-- **v0.2** *(current)* — 15 checks across 3 real difficulty tiers, kiosk companion app, admin auto-refresh, agent clock-skew fix.
+- **v0.2** — 15 checks across 3 real difficulty tiers, kiosk companion app, admin auto-refresh, agent clock-skew fix.
+- **v0.4** *(current)* — 30 checks (+15 new), dedicated "FITCOM" preset (30 soal, 2h30m), guiding-only hints on ~25% of checks, admin anti-cheat indicators, working disqualify flow, nonce anti-replay, admin login rate limiting, CSV export.
 - **v0.3** — richer plugin API for community-contributed checks, evidence viewer UI, CSV/PDF result export.
 - **v0.4** — Windows participant VM support (agent port), Go rewrite of the agent for smaller footprint.
 - **v1.0** — production hardening: full replay-protection, rate limiting, multi-organizer orgs.

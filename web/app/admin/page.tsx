@@ -1,17 +1,19 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 type Comp = {
   id: string; name: string; difficulty: string; status: string;
   session_code: string; duration_sec: number; participant_count: number;
 };
+type PartCheck = { code: string; title: string; passed: boolean; eligible: boolean };
 type Part = {
   id: string; full_name: string; school: string | null; status: string;
   agent_version: string | null; last_heartbeat: string | null;
+  checks?: PartCheck[]; has_anomaly?: boolean;
 };
 
-const DIFF_LABEL: Record<string, string> = { easy: "Mudah", medium: "Medium", hard: "Hard" };
-const DIFF_DEFAULT_MIN: Record<string, number> = { easy: 120, medium: 90, hard: 60 };
+const DIFF_LABEL: Record<string, string> = { easy: "Mudah", medium: "Medium", hard: "Hard", fitcom: "FITCOM" };
+const DIFF_DEFAULT_MIN: Record<string, number> = { easy: 120, medium: 90, hard: 60, fitcom: 150 };
 
 export default function Admin() {
   const [authed, setAuthed] = useState<boolean | null>(null);
@@ -22,6 +24,7 @@ export default function Admin() {
   const [durationMin, setDurationMin] = useState(120);
   const [openId, setOpenId] = useState<string | null>(null);
   const [parts, setParts] = useState<Part[]>([]);
+  const [openParticipantId, setOpenParticipantId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ m: string; k: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -60,7 +63,10 @@ export default function Admin() {
     });
     setBusy(false);
     if (r.ok) { setAuthed(true); setPw(""); loadComps(); flash("Berhasil masuk"); }
-    else flash("Password salah", "err");
+    else {
+      const j = await r.json().catch(() => ({}));
+      flash(j.error || "Password salah", "err");
+    }
   }
   async function logout() {
     await fetch("/api/v1/admin/login", { method: "DELETE" });
@@ -95,21 +101,36 @@ export default function Admin() {
   async function toggleParts(id: string) {
     if (openId === id) { setOpenId(null); return; }
     setOpenId(id);
+    setOpenParticipantId(null);
     await refreshParts(id);
   }
   async function refreshParts(compId: string) {
     const r = await fetch(`/api/v1/admin/participants?comp=${compId}`, { cache: "no-store" });
     setParts((await r.json()).participants || []);
   }
+
+  // Aksi terhadap 1 peserta (DQ / batalkan DQ / hapus). Sebelumnya fungsi ini
+  // tidak pernah mengecek `r.ok` -- jadi kalau request gagal (mis. sesi
+  // admin kedaluwarsa, error server), UI tetap menampilkan toast "berhasil"
+  // seolah DQ jalan padahal tidak. Itulah salah satu penyebab laporan
+  // "tombol DQ tidak work": gagalnya SENYAP. Sekarang error ditampilkan asli.
   async function partAction(action: string, participant_id: string) {
     if (action === "remove" && !confirm("Hapus peserta ini?")) return;
-    await fetch("/api/v1/admin/participants", {
+    setBusy(true);
+    const r = await fetch("/api/v1/admin/participants", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action, participant_id }),
     });
+    setBusy(false);
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { flash(j.error || "Aksi gagal", "err"); return; }
     if (openId) await refreshParts(openId);
     loadComps();
-    flash(action === "remove" ? "Peserta dihapus" : "Peserta didiskualifikasi");
+    flash(action === "remove" ? "Peserta dihapus" : action === "disqualify" ? "Peserta didiskualifikasi" : "DQ dibatalkan");
+  }
+
+  function toggleParticipantDetail(pid: string) {
+    setOpenParticipantId((cur) => (cur === pid ? null : pid));
   }
 
   // ---------- render ----------
@@ -165,6 +186,7 @@ export default function Admin() {
               <option value="easy">Mudah (Easy) · 6 soal</option>
               <option value="medium">Medium · 11 soal</option>
               <option value="hard">Hard · 15 soal</option>
+              <option value="fitcom">FITCOM (Event) · 30 soal</option>
             </select></div>
           <div><label>Durasi pengerjaan (menit)</label>
             <input type="number" min={1} value={durationMin}
@@ -203,6 +225,8 @@ export default function Admin() {
                 disabled={busy || !["running", "paused"].includes(c.status)}>⏹ Stop</button>
               <button className="ghost sm" onClick={() => toggleParts(c.id)}>
                 {openId === c.id ? "Tutup peserta" : "Lihat peserta"}</button>
+              <a className="ghost sm" style={{ textDecoration: "none" }}
+                href={`/api/v1/admin/export?comp=${c.id}`} target="_blank" rel="noreferrer">⬇ Export CSV</a>
               <button className="ghost sm" onClick={() => comp("archive", c.id)}
                 disabled={busy || c.status === "archived"}>Arsipkan</button>
               <button className="danger sm" onClick={() => { if (confirm("Hapus sesi ini beserta semua pesertanya?")) comp("delete", c.id); }}>
@@ -215,23 +239,67 @@ export default function Admin() {
                   <table>
                     <thead><tr><th>Peserta</th><th>Sekolah</th><th>Status</th><th></th></tr></thead>
                     <tbody>
-                      {parts.map((p) => (
-                        <tr key={p.id}>
-                          <td>{p.full_name}</td>
-                          <td className="muted">{p.school || "—"}</td>
-                          <td><span className={"badge " + (p.status === "online" ? "running" : p.status === "disqualified" ? "archived" : "paused")}>{p.status}</span></td>
-                          <td style={{ textAlign: "right" }}>
-                            <div className="actions" style={{ justifyContent: "flex-end" }}>
-                              {p.status === "disqualified" ? (
-                                <button className="ok sm" onClick={() => partAction("requalify", p.id)}>Batalkan DQ</button>
-                              ) : (
-                                <button className="warn sm" onClick={() => partAction("disqualify", p.id)}>DQ</button>
+                      {parts.map((p) => {
+                        const detailOpen = openParticipantId === p.id;
+                        return (
+                        <Fragment key={p.id}>
+                          <tr>
+                            <td>
+                              <span style={{ cursor: p.checks?.length ? "pointer" : "default" }}
+                                onClick={() => p.checks?.length && toggleParticipantDetail(p.id)}
+                                title={p.checks?.length ? "Klik untuk lihat rincian soal" : undefined}>
+                                {p.full_name}
+                                {p.checks?.length ? <span className="detail-caret">{detailOpen ? "▲" : "▼"}</span> : null}
+                              </span>
+                              {p.has_anomaly && (
+                                <span className="badge" style={{ marginLeft: 8, background: "rgba(255,93,93,.16)", color: "var(--danger)" }}
+                                  title="Ada soal yang sudah LULUS sebelum panitia klik START -- indikasi peserta mengerjakan lebih dulu (curang/pre-fix). Poinnya sendiri sudah otomatis TIDAK dihitung, ini cuma penanda visual.">
+                                  ⚠ Anomali start
+                                </span>
                               )}
-                              <button className="danger sm" onClick={() => partAction("remove", p.id)}>Hapus</button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td className="muted">{p.school || "—"}</td>
+                            <td><span className={"badge " + (p.status === "online" ? "running" : p.status === "disqualified" ? "archived" : "paused")}>{p.status}</span></td>
+                            <td style={{ textAlign: "right" }}>
+                              <div className="actions" style={{ justifyContent: "flex-end" }}>
+                                {p.status === "disqualified" ? (
+                                  <button className="ok sm" onClick={() => partAction("requalify", p.id)}>Batalkan DQ</button>
+                                ) : (
+                                  <button className="warn sm" onClick={() => partAction("disqualify", p.id)}>DQ</button>
+                                )}
+                                <button className="danger sm" onClick={() => partAction("remove", p.id)}>Hapus</button>
+                              </div>
+                            </td>
+                          </tr>
+                          {detailOpen && p.checks?.length ? (
+                            <tr className="detail-row">
+                              <td colSpan={4}>
+                                <div className="small muted" style={{ marginBottom: 8 }}>
+                                  {p.checks.filter((c) => c.passed).length} / {p.checks.length} soal selesai
+                                  {p.has_anomaly && (
+                                    <span style={{ color: "var(--danger)" }}> · centang MERAH = lulus sebelum START (tidak dapat poin)</span>
+                                  )}
+                                </div>
+                                <div className="detail-grid">
+                                  {p.checks.map((c, i) => {
+                                    const anomaly = c.eligible === false;
+                                    const cls = anomaly ? "anomaly" : c.passed ? "pass" : "fail";
+                                    return (
+                                      <div key={c.code} className={"detail-item " + cls}
+                                        title={anomaly ? "Lulus sebelum START -- eligible=false, tidak dapat poin" : undefined}>
+                                        <span className="detail-icon">{anomaly || c.passed ? "✔" : "✗"}</span>
+                                        <span className="detail-no">{i + 1}.</span>
+                                        <span>{c.title}</span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </td>
+                            </tr>
+                          ) : null}
+                        </Fragment>
+                        );
+                      })}
                     </tbody>
                   </table>
                 )}

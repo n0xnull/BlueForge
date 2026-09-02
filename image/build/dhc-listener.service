@@ -1,0 +1,16 @@
+# abilithic DHC — simulasi listener backdoor/reverse-shell (celah SENGAJA,
+# soal backdoor_listener_removed). Dipasang oleh image/build/provision.sh
+# ke /etc/systemd/system/. Lihat dhc-listener.py untuk detail.
+[Unit]
+Description=abilithic DHC - simulated backdoor/reverse-shell listener (intentionally vulnerable, port 4444)
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/sbin/dhc-listener.py
+Restart=always
+RestartSec=2
+User=root
+
+[Install]
+WantedBy=multi-user.target

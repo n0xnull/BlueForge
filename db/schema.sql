@@ -11,7 +11,7 @@ create extension if not exists "pgcrypto";   -- gen_random_uuid()
 -- ------------------------------------------------------------------
 create table if not exists difficulties (
   id                   uuid primary key default gen_random_uuid(),
-  key                  text unique not null check (key in ('easy','medium','hard')),
+  key                  text unique not null check (key in ('easy','medium','hard','fitcom')),
   name                 text not null,
   description          text,
   active_check_codes   jsonb not null default '[]',   -- subset check yang dinilai

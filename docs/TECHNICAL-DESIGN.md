@@ -415,9 +415,15 @@ must_stay_passing: false
 category: ssh
 difficulty_tags: [easy, medium, hard]   # tingkat yang boleh memakai
 hint_basic: "Cek /etc/ssh/sshd_config baris PermitRootLogin"
-hint_advanced: "Set PermitRootLogin no lalu restart sshd"
 schema_version: "1.0"
 ```
+
+> **Update v0.4**: field `hint_advanced` (command jawaban langsung, contoh
+> lama: `"Set PermitRootLogin no lalu restart sshd"`) SUDAH TIDAK DIPAKAI
+> SAMA SEKALI -- `agent/runner/check_runner.py` `LoadedCheck.hint()` hanya
+> pernah mengembalikan `hint_basic`, dan itu pun cuma diisi utk ~25% soal.
+> Kolom `hint_advanced` masih ada di schema/seed demi kompatibilitas tapi
+> selalu di-null-kan. Lihat CHANGELOG v0.4 & `db/seed/difficulties.sql`.
 
 ### 15.3 Interface check (kontrak perilaku)
 Setiap check mengimplementasikan interface seragam:

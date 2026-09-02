@@ -1,0 +1,9 @@
+code: aslr_enabled
+title: "Aktifkan ASLR Penuh (Address Space Layout Randomization)"
+description: "Parameter kernel kernel.randomize_va_space harus bernilai 2 (ASLR penuh), agar lokasi memori proses diacak sehingga mempersulit eksploitasi buffer overflow."
+points: 10
+is_penalty: false
+must_stay_passing: false
+category: kernel
+difficulty_tags: [fitcom]
+schema_version: "1.0"

@@ -6,6 +6,4 @@ is_penalty: false
 must_stay_passing: false
 category: permission
 difficulty_tags: [hard]
-hint_basic: "Cek: ls -l /opt/dhc/secret.txt — jangan ada 'w' di posisi others."
-hint_advanced: "Perbaiki: sudo chmod 644 /opt/dhc/secret.txt"
 schema_version: "1.0"

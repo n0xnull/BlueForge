@@ -29,11 +29,19 @@ class LoadedCheck:
         return bool(self.manifest.get("must_stay_passing", False))
 
     def hint(self, policy: str):
+        """Hint HANYA berupa arahan (guiding) dari `hint_basic` -- TIDAK
+        PERNAH mengembalikan command jawaban langsung.
+
+        Sejak v0.4, field `hint_advanced` (command siap pakai) sengaja tidak
+        lagi dipakai sama sekali (lihat docs/REVIEW-AND-CONCEPT-v2.md /
+        CHANGELOG) -- panitia FITCOM minta hint hanya mengarahkan, bukan
+        memberi jawaban langsung. Hanya sebagian kecil soal (~25%, lihat
+        db/seed/difficulties.sql) yang punya `hint_basic` sama sekali;
+        sisanya otomatis None di sini (tidak ada hint ditampilkan).
+        """
         if policy == "none":
             return None
-        if policy == "limited":
-            return self.manifest.get("hint_basic")
-        return self.manifest.get("hint_advanced") or self.manifest.get("hint_basic")
+        return self.manifest.get("hint_basic")
 
     def run(self, ctx=None):
         try:

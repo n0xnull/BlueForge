@@ -6,6 +6,4 @@ is_penalty: false
 must_stay_passing: false
 category: permission
 difficulty_tags: [easy, medium, hard]
-hint_basic: "Cek permission: ls -l /etc/passwd (harus -rw-r--r--)"
-hint_advanced: "Perbaiki: sudo chmod 644 /etc/passwd"
 schema_version: "1.0"

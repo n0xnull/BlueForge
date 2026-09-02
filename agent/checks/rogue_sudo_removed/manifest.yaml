@@ -6,6 +6,4 @@ is_penalty: false
 must_stay_passing: false
 category: privilege
 difficulty_tags: [hard]
-hint_basic: "Cek anggota grup sudo: getent group sudo"
-hint_advanced: "Cabut: sudo gpasswd -d backdoor sudo  (atau hapus akun: sudo deluser backdoor)"
 schema_version: "1.0"

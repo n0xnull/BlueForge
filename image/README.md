@@ -43,12 +43,12 @@
    ```
 7. Unggah OVA + checksum ke Releases. Bagikan link ke peserta.
 
-## Daftar celah (15 check, v0.3)
+## Daftar celah (30 check, v0.4)
 
 `image/build/provision.sh` sekarang dua fase: **RESET** (bersihkan sisa
 provisioning/percobaan sebelumnya — user rogue lama, unit systemd, rule ufw
 kustom, override `ip_forward` yang ter-persist) lalu **PLANT** (tanam ulang
-semua 15 celah dari kondisi bersih itu). Aman dijalankan berkali-kali di VM
+semua 30 celah dari kondisi bersih itu). Aman dijalankan berkali-kali di VM
 yang sama saat testing — hasilnya selalu deterministik.
 
 | code | Kondisi rentan (yang ditanam) |

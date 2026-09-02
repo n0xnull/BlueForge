@@ -41,12 +41,27 @@ export async function POST(req: NextRequest) {
   const action = body.action;
 
   if (action === "create") {
-    const difficulty = ["easy", "medium", "hard"].includes(body.difficulty) ? body.difficulty : "easy";
-    const { data: diff } = await db
+    // Validasi `difficulty` terhadap tabel `difficulties` sendiri (bukan
+    // daftar hardcoded ["easy","medium","hard"] seperti sebelumnya) --
+    // sebelumnya memilih preset apa pun di luar 3 itu (mis. "fitcom", yang
+    // baru ditambah v0.4) akan DIAM-DIAM jatuh ke "easy" tanpa error sama
+    // sekali, jadi panitia bisa salah bikin sesi 6-soal padahal mengira
+    // sudah memilih FITCOM 30-soal. Sekarang divalidasi dgn query nyata,
+    // dan preset baru di masa depan otomatis kepakai tanpa perlu ubah kode.
+    let difficulty = String(body.difficulty || "easy");
+    let { data: diff } = await db
       .from("difficulties")
       .select("hint_policy,penalty_weight,default_duration_sec")
       .eq("key", difficulty)
       .maybeSingle();
+    if (!diff) {
+      difficulty = "easy";
+      ({ data: diff } = await db
+        .from("difficulties")
+        .select("hint_policy,penalty_weight,default_duration_sec")
+        .eq("key", difficulty)
+        .maybeSingle());
+    }
     // durasi custom (menit) opsional; kalau kosong pakai default per tingkat
     const mins = Number(body.duration_minutes);
     const durationSec = Number.isFinite(mins) && mins > 0

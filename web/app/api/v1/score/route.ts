@@ -7,19 +7,27 @@ export const dynamic = "force-dynamic";
 // POST /api/v1/score  (TDD §16.3)
 export async function POST(req: NextRequest) {
   const raw = await req.text();
-  const auth = await verifyAgentRequest(req, "/api/v1/score", raw);
+  const db = supabaseAdmin();
+  const auth = await verifyAgentRequest(req, "/api/v1/score", raw, db);
   if (!auth.ok) return NextResponse.json({ error: auth.reason }, { status: 401 });
 
   let body: any;
   try { body = JSON.parse(raw); } catch { return NextResponse.json({ error: "bad json" }, { status: 400 }); }
-
-  const db = supabaseAdmin();
   const { data: participant } = await db
     .from("participants")
-    .select("id,competition_id")
+    .select("id,competition_id,status")
     .eq("id", auth.participantId)
     .maybeSingle();
   if (!participant) return NextResponse.json({ error: "unknown" }, { status: 401 });
+
+  // Peserta yang sudah didiskualifikasi TIDAK BOLEH terus menambah skor --
+  // sebelumnya endpoint ini hanya mengecek status SESI ("running"), bukan
+  // status PESERTA, jadi diskualifikasi tidak benar-benar menghentikan apa
+  // pun secara fungsional selain warna badge di admin (yang toh langsung
+  // ketimpa lagi oleh heartbeat -- lihat perbaikan di heartbeat/route.ts).
+  if (participant.status === "disqualified") {
+    return NextResponse.json({ accepted: false, reason: "disqualified" }, { status: 403 });
+  }
 
   const { data: comp } = await db
     .from("competitions")

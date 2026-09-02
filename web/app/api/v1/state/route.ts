@@ -14,15 +14,14 @@ const NO_CACHE = {
 
 // GET /api/v1/state  (TDD §16.2) — polling inti
 export async function GET(req: NextRequest) {
-  const auth = await verifyAgentRequest(req, "/api/v1/state", "");
+  const db = supabaseAdmin();
+  const auth = await verifyAgentRequest(req, "/api/v1/state", "", db);
   if (!auth.ok) {
     return NextResponse.json({ error: auth.reason }, { status: 401, headers: NO_CACHE });
   }
-
-  const db = supabaseAdmin();
   const { data: participant } = await db
     .from("participants")
-    .select("id,competition_id")
+    .select("id,competition_id,status")
     .eq("id", auth.participantId)
     .maybeSingle();
   if (!participant) {
@@ -45,6 +44,12 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     status: comp.status,
+    // Status peserta sendiri (registered|online|offline|disqualified) --
+    // dipakai agent utk tahu dirinya sudah didiskualifikasi panitia dan
+    // berhenti mengirim skor / menampilkan banner di kiosk lokal, bukan
+    // cuma diam-diam ditolak server tanpa penjelasan (lihat juga
+    // perbaikan di /api/v1/score & /api/v1/heartbeat).
+    participant_status: participant.status,
     server_time_ms: Date.now(),
     ends_at_ms: comp.ends_at ? new Date(comp.ends_at).getTime() : null,
     difficulty: comp.difficulty,

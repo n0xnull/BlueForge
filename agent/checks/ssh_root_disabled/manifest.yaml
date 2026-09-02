@@ -6,6 +6,5 @@ is_penalty: false
 must_stay_passing: false
 category: ssh
 difficulty_tags: [easy, medium, hard]
-hint_basic: "Cek /etc/ssh/sshd_config pada baris PermitRootLogin."
-hint_advanced: "Set 'PermitRootLogin no' lalu: sudo systemctl restart ssh"
+hint_basic: "Login root langsung lewat SSH kemungkinan masih diizinkan. Periksa parameter terkait login root di berkas konfigurasi SSH daemon, lalu pastikan service SSH membaca ulang konfigurasi setelah diubah."
 schema_version: "1.0"

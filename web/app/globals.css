@@ -128,6 +128,7 @@ tr.detail-row:hover { background: transparent; }
 .detail-item.pass { color: var(--fg); }
 .detail-item.fail { color: var(--mut); }
 .detail-item .detail-icon { width: 16px; text-align: center; font-weight: 800; }
+.detail-item .detail-no { color: var(--mut); font-variant-numeric: tabular-nums; font-size: 11.5px; }
 .detail-item.pass .detail-icon { color: var(--ok); }
 .detail-item.fail .detail-icon { color: var(--mut); }
 .code { font-family: ui-monospace, "SF Mono", monospace; background: #0c1220; border: 1px solid var(--line);
@@ -142,3 +143,27 @@ tr.detail-row:hover { background: transparent; }
 .spinner { width: 18px; height: 18px; border: 2px solid var(--line); border-top-color: var(--acc);
   border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Toast notifikasi (aksi admin: login, start/stop, DQ, dst.) -- SEBELUMNYA
+   className "toast"/"toast err" dipakai di admin/page.tsx tapi TIDAK PERNAH
+   ada definisi CSS-nya sama sekali di file ini, jadi notifikasi tampil
+   sebagai teks polos tanpa posisi/gaya (gampang tidak kelihatan panitia
+   saat lomba). Ditambahkan di sini supaya benar-benar muncul sebagai
+   toast mengambang di pojok layar. */
+.toast { position: fixed; right: 20px; bottom: 20px; z-index: 50; padding: 12px 18px;
+  border-radius: 10px; font-weight: 700; font-size: 13px; box-shadow: var(--shadow-lg);
+  background: var(--card2); border: 1px solid var(--line); color: var(--fg);
+  animation: toastin .22s var(--ease); max-width: min(420px, calc(100vw - 40px)); }
+.toast.ok { border-color: rgba(47,214,127,.4); }
+.toast.ok::before { content: "✓ "; color: var(--ok); font-weight: 800; }
+.toast.err { border-color: rgba(255,93,93,.4); }
+.toast.err::before { content: "✕ "; color: var(--danger); font-weight: 800; }
+@keyframes toastin { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Indikator anomali anti-curang (admin "Lihat peserta") — check yang
+   eligible=false berarti SUDAH LULUS sebelum panitia klik START (pre-fix).
+   Tetap ditampilkan sbg centang (memang sudah dikerjakan), tapi MERAH,
+   bukan hijau, supaya panitia langsung sadar itu tidak sah/tidak dapat
+   poin -- lihat web/app/admin/page.tsx & api/v1/admin/participants. */
+.detail-item.anomaly { color: var(--fg); }
+.detail-item.anomaly .detail-icon { color: var(--danger); }

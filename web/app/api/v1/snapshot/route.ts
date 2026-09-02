@@ -7,13 +7,12 @@ export const dynamic = "force-dynamic";
 // POST /api/v1/snapshot  (TDD §16.4, §13 Baseline & Evidence)
 export async function POST(req: NextRequest) {
   const raw = await req.text();
-  const auth = await verifyAgentRequest(req, "/api/v1/snapshot", raw);
+  const db = supabaseAdmin();
+  const auth = await verifyAgentRequest(req, "/api/v1/snapshot", raw, db);
   if (!auth.ok) return NextResponse.json({ error: auth.reason }, { status: 401 });
 
   let snap: any;
   try { snap = JSON.parse(raw); } catch { return NextResponse.json({ error: "bad json" }, { status: 400 }); }
-
-  const db = supabaseAdmin();
   const { data: participant } = await db
     .from("participants")
     .select("id,competition_id")

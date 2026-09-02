@@ -6,6 +6,4 @@ is_penalty: false
 must_stay_passing: false
 category: persistence
 difficulty_tags: [hard]
-hint_basic: "Periksa /etc/cron.d/ untuk job yang tidak dikenal."
-hint_advanced: "Hapus: sudo rm -f /etc/cron.d/dhc-backdoor"
 schema_version: "1.0"

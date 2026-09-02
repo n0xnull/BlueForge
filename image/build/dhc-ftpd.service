@@ -1,0 +1,16 @@
+# abilithic DHC — simulasi legacy FTP listener (celah SENGAJA, soal ftp_disabled).
+# Dipasang oleh image/build/provision.sh ke /etc/systemd/system/.
+# Lihat dhc-ftpd.py untuk alasan kenapa ini menggantikan paket FTP server asli.
+[Unit]
+Description=abilithic DHC - simulated legacy FTP listener (intentionally vulnerable, port 21)
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/sbin/dhc-ftpd.py
+Restart=always
+RestartSec=2
+User=root
+
+[Install]
+WantedBy=multi-user.target
