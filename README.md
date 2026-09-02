@@ -51,6 +51,7 @@ reflected on a public leaderboard within seconds, no grader required.
   both the kiosk and the admin panel display that exact number next to
   every question.
 - 💡 **Hints that guide & instruct (30% hint policy)** — 30% of checks carry a hint (20% conceptual guiding hints, 10% command/example hints) randomly distributed across Easy to Hard difficulty tiers, while 70% remain hintless to encourage independent analysis.
+- 🧠 **Black-Box State Verification** — The agent inspects Linux system end-states (`check.py`), NOT terminal command history or specific CLI tools. Participants have 100% freedom to use any command (`sed`, `chmod`, `nano`, `vim`, GUI tools, or custom scripts). Any valid method that achieves the security objective earns points automatically without debate or misperception.
 - ⚖️ **Fair & evidence-backed anti-cheat** — a Baseline & Evidence system snapshots each VM at registration/START/STOP, so fixing a check *before* START doesn't earn points (closes the "pre-fix" loophole). Pre-fix checks are visually marked with a **red checkmark (`✔`) + "Pre-fix" badge** across the Admin Panel, Leaderboard, and Participant Kiosk UI.
 - 🚫 **Disqualify with instant alerts & visual badges** — clicking DQ freezes a participant's status: the agent stops scoring, an instant popup alert modal + persistent banner appears on the participant's VM kiosk, and the public Leaderboard displays a prominent red badge (`🚨 DIDISKUALIFIKASI`) with strikethrough score.
 - ⚡ **Truly live scoring** — leaderboard polls + Supabase Realtime, admin
@@ -125,17 +126,18 @@ reflected on a public leaderboard within seconds, no grader required.
 
 > Pre-built VMware image — import and run, no manual provisioning needed.
 
-| File | Link |
-|---|---|
-| 🖥️ **BlueForge VM (VMware .ova)** | [⬇️ Download via Google Drive](https://tinyurl.com/BlueForge-VMWare) |
-| 🔧 **VMware Workstation Player** | [vmware.com/products/workstation-player](https://www.vmware.com/products/workstation-player.html) *(free for non-commercial use)* |
+| File | Link | Notes |
+|---|---|---|
+| 🖥️ **BlueForge VM (VMware .ova Archive)** | [⬇️ Download via Google Drive](https://tinyurl.com/BlueForge-VMWare) | 🔐 **RAR Password:** `blueforge` |
+| 🔧 **VMware Workstation Player** | [vmware.com/products/workstation-player](https://www.vmware.com/products/workstation-player.html) | Free for non-commercial use |
 
 **Import the VM:**
-1. Open VMware → **File → Open** → select the `.ova` file.
-2. Import → start the VM.
-3. Boot → BlueForge kiosk launches automatically. Fill in name + session code from your organizer.
+1. Download & extract the `.rar` archive using password **`blueforge`**.
+2. Open VMware → **File → Open** → select the extracted `.ova` file.
+3. Import → start the VM.
+4. Boot → BlueForge kiosk launches automatically. Fill in name + session code from your organizer.
 
-> **Organizer only:** after import, run `sudo bash ~/BlueForge/image/build/provision.sh` once to plant the intentional vulnerabilities before distributing the VM to participants.
+> **Organizer only:** after import, run `sudo bash ~/BlueForge/image/build/provision.sh` once to plant all 30 intentional vulnerabilities before distributing the VM to participants.
 
 ---
 
@@ -277,7 +279,7 @@ shortcut on the Desktop (no terminal required), or run
 
 **Common diagnostic commands:**
 ```bash
-systemctl status blueforge-agent dhc-telnetd   # are the services alive?
+systemctl status blueforge-agent dhc-telnetd dhc-ftpd dhc-listener   # are the services alive?
 ps aux | grep -E "kiosk.py|main.py"            # is the kiosk/agent actually running?
 journalctl --user -b | grep -i -E "kiosk|webview|gtk"  # kiosk autostart logs this boot
 diff ~/BlueForge/agent/kiosk.py /opt/blueforge-agent/kiosk.py  # in sync?

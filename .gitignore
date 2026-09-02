@@ -12,6 +12,7 @@ dist/
 *.key
 *.pem
 agent/config.yaml
+agent/session_state.json*
 
 # ---- Python ----
 __pycache__/
