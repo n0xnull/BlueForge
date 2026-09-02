@@ -44,11 +44,28 @@ reflected on a public leaderboard within seconds, no grader required.
 
 ## ✨ Key Features
 
-- 🎯 **Three difficulty tiers** — Easy (6 checks) · Medium (11) · Hard (15),
-  picked per session by the organizer, each with its own default duration.
-- ⚖️ **Fair & evidence-backed** — a Baseline & Evidence system snapshots each
-  VM at registration/start/stop, so fixing a check *before* START doesn't earn
-  points (closes the "pre-fix" loophole) and every score is auditable.
+- 🎯 **Four difficulty tiers, 30 checks total** — Easy (6) · Medium (11) ·
+  Hard (15) · **FITCOM** (all 30, sized for a real ~2.5h event), picked per
+  session by the organizer. Checks run **No. 1 → 30 in genuine
+  easiest-to-hardest order**, not just a random or insertion-order list —
+  both the kiosk and the admin panel display that exact number next to
+  every question.
+- 💡 **Hints that guide, never answer** — only a minority of checks
+  (~25%) carry a hint at all, and every hint is deliberately *directional*
+  ("check what's listening on your network ports") rather than a
+  copy-pasteable command. There is no hint tier that hands out the literal
+  fix.
+- ⚖️ **Fair & evidence-backed anti-cheat** — a Baseline & Evidence system
+  snapshots each VM at registration/START/STOP, so fixing a check *before*
+  START doesn't earn points (closes the "pre-fix" loophole). This isn't just
+  enforced silently server-side: the admin's participant view marks any
+  such check with a **red checkmark + "anomaly" badge**, so organizers can
+  actually see who tried to pre-fix before deciding on further action.
+- 🚫 **Disqualify that actually sticks** — clicking DQ freezes a
+  participant's status for good: the agent stops scoring, the participant's
+  own kiosk shows a clear "disqualified" banner, and every layer (heartbeat,
+  score submission, even re-registration) is blocked from silently
+  reversing it.
 - ⚡ **Truly live scoring** — leaderboard polls + Supabase Realtime, admin
   console auto-refreshes participant status, and the agent's clock-skew
   correction means scores keep flowing even when a cloned VM's system clock
@@ -57,13 +74,24 @@ reflected on a public leaderboard within seconds, no grader required.
 - 🧩 **Modular checks** — add a new hardening check by dropping a
   `manifest.yaml` + `check.py` into `agent/checks/`; the scoring engine never
   needs to change (plugin-style).
-- 🖥️ **Zero-setup participant experience** — the agent ships as a kiosk
-  companion app (pywebview, with a browser-kiosk fallback) that autostarts on
-  VM boot: participants see registration, live score, and remaining time
-  without touching a terminal.
-- 🔒 **Signed, resilient networking** — HMAC-signed agent↔server traffic,
-  exponential backoff, and store-and-forward queuing so a flaky network
-  during a competition never silently drops a score.
+- 🖥️ **Zero-setup, crash-resilient participant experience** — the agent
+  ships as a kiosk companion app (pywebview, with a browser-kiosk fallback)
+  that autostarts on VM boot: participants see registration, live score,
+  and remaining time without touching a terminal. Because participants hold
+  full `sudo` on their own VM for the whole round, a crash or `sudo reboot`
+  is expected, not exceptional — the agent persists its session locally and
+  resumes automatically, and the server treats a matching re-registration as
+  a resume rather than a rejection, so nobody gets locked out of their own
+  progress (disqualified participants are still correctly blocked from this
+  path).
+- 🔒 **Signed, replay-resistant networking** — HMAC-signed agent↔server
+  traffic with a nonce store that rejects replayed requests, exponential
+  backoff, and store-and-forward queuing so a flaky network during a
+  competition never silently drops a score.
+- 🛠️ **Hardened organizer console** — brute-force-limited admin login
+  (rate-limited, durably logged), a one-click CSV export of final
+  standings, and a full audit trail (`event_logs`) of every disqualify,
+  requalify, and removal.
 - 🆓 **100% free stack** — Vercel (web) + Supabase (Postgres/Realtime/Auth) +
   a pure-Python agent. No paid services required to run a competition.
 
@@ -128,7 +156,11 @@ reflected on a public leaderboard within seconds, no grader required.
 
 ### 1. Database (Supabase)
 1. Create a free project at [supabase.com](https://supabase.com).
-2. In **SQL Editor**, run `db/schema.sql`, then `db/seed/difficulties.sql`.
+2. In **SQL Editor**, run `db/schema.sql`, then `db/seed/difficulties.sql`
+   (brand-new project — this alone gives you all 4 tiers, including FITCOM).
+   Upgrading an **existing** database from before the FITCOM preset existed?
+   Run the relevant file(s) in `db/migrations/` first, then re-run
+   `db/seed/difficulties.sql` (it's UPSERT-based, safe to run again anytime).
 3. Note your **Project URL**, **anon key**, and **service_role key** (Settings → API).
 
 ### 2. Web portal (Next.js)
@@ -153,7 +185,7 @@ Or launch the kiosk companion app instead of the bare agent:
 autostart on VM boot).
 
 ### 4. Run a competition
-1. On **`/admin`**: create a session, pick a difficulty (Easy/Medium/Hard), get a **session code**.
+1. On **`/admin`**: create a session, pick a difficulty (Easy/Medium/Hard/**FITCOM**), get a **session code**.
 2. Participants register at `localhost:9090` using that code.
 3. Organizer clicks **START** → every agent begins scoring simultaneously → live scores on **`/`**.
 4. **STOP** freezes scores → export results.
@@ -170,7 +202,8 @@ autostart on VM boot).
 | `web/app/page.tsx` | Public live leaderboard |
 | `web/app/admin/page.tsx` | Organizer console — sessions, participants, start/pause/stop, disqualify |
 | `db/` | Postgres schema + seed (difficulties, checks) + `leaderboard` view |
-| `image/build/provision.sh` | Plants the 15 intentional vulnerabilities into a base Ubuntu VM |
+| `db/migrations/` | Incremental SQL migrations for databases created before a schema change (e.g. adding the `fitcom` preset) |
+| `image/build/provision.sh` | Plants all 30 intentional vulnerabilities into a base Ubuntu VM (idempotent — safe to re-run) |
 
 ## ⚙️ How it Works
 
@@ -192,12 +225,21 @@ START`) → sign and send. Full design in
 ## 🗺️ Roadmap
 
 - **v0.2** — 15 checks across 3 real difficulty tiers, kiosk companion app, admin auto-refresh, agent clock-skew fix.
-- **v0.4** *(current)* — 30 checks (+15 new), dedicated "FITCOM" preset (30 soal, 2h30m), guiding-only hints on ~25% of checks, admin anti-cheat indicators, working disqualify flow, nonce anti-replay, admin login rate limiting, CSV export.
-- **v0.3** — richer plugin API for community-contributed checks, evidence viewer UI, CSV/PDF result export.
-- **v0.4** — Windows participant VM support (agent port), Go rewrite of the agent for smaller footprint.
-- **v1.0** — production hardening: full replay-protection, rate limiting, multi-organizer orgs.
+- **v0.4** *(current)* — 30 checks total (+15 new), a dedicated **FITCOM**
+  preset (all 30, sized for a ~2.5h event) with checks in genuine
+  easiest-to-hardest order, guiding-only hints on ~25% of checks, admin
+  anti-cheat indicators (red checkmark for pre-fix), a disqualify flow that
+  actually sticks, nonce anti-replay, admin login rate limiting, CSV export,
+  and an agent that survives a participant's VM crashing or rebooting
+  mid-round without losing their session.
+- **Next up** — richer plugin API for community-contributed checks, an
+  evidence viewer UI, Windows participant VM support (agent port), and a Go
+  rewrite of the agent for a smaller footprint.
+- **v1.0** — production hardening: multi-organizer orgs, PDF export, a
+  fuller admin audit UI on top of the `event_logs` trail that already exists.
 
-See [`docs/V0.2-PLAN.md`](docs/V0.2-PLAN.md) and the full TDD roadmap (§29) for details.
+See [`docs/V0.2-PLAN.md`](docs/V0.2-PLAN.md), [`CHANGELOG.md`](CHANGELOG.md),
+and the full TDD roadmap (§29) for details.
 
 ## 🤝 Contributing & Security
 
@@ -217,13 +259,17 @@ participant VM. Full step-by-step (Bahasa Indonesia) lives in
 
 **First run on a fresh VM clone:**
 ```bash
-# clear shell history first — a cloned VM shouldn't leak the previous user's commands
-cat /dev/null > ~/.bash_history && history -c && history -w
-
 cd ~/BlueForge
 git pull
-sudo bash image/build/provision.sh   # plants the 15 intentional vulnerabilities
+sudo bash image/build/provision.sh   # plants all 30 intentional vulnerabilities
 ```
+`provision.sh` clears `~/.bash_history` (root & the login user) as its very
+last step, so a cloned/exported VM doesn't leak the organizer's setup
+commands to participants — no separate manual history-clearing step needed
+anymore. If you keep typing commands in that same terminal *after*
+`provision.sh` finishes and before exporting the VM, run `history -c` once
+more right before export — bash can otherwise re-write the still-running
+session's history back to the file on a normal shell exit.
 
 **Pulling a code update onto an already-installed VM** — the kiosk/agent
 that actually runs at boot is a **separate copy** installed to
