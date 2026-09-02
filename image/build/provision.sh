@@ -210,8 +210,12 @@ cat > /etc/cron.d/dhc-backdoor <<'EOF'
 * * * * * root /bin/true
 EOF
 
-# 19 tmp_sticky_bit_set -> cabut sticky bit /tmp (mode default aman = 1777)
-chmod 0777 /tmp 2>/dev/null || true
+# 8 default_umask_set -> set UMASK ke 000 di /etc/login.defs
+if grep -q '^UMASK' /etc/login.defs; then
+  sed -i 's/^UMASK.*/UMASK\t000/' /etc/login.defs
+else
+  echo 'UMASK	000' >> /etc/login.defs
+fi
 
 # 26 unsafe_path_removed -> sisipkan '.' (current dir) ke PATH global lewat
 # drop-in profile.d milik kita sendiri (BUKAN mengedit /etc/profile langsung,

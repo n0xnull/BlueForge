@@ -119,18 +119,19 @@ def test_ssh_max_auth_tries_limited():
         check("ssh_max_auth_tries: fixed(3) -> PASS", r["passed"] is True)
 
 
-def test_tmp_sticky_bit_set():
-    mod = load_check("tmp_sticky_bit_set")
+def test_default_umask_set():
+    mod = load_check("default_umask_set")
     with tempfile.TemporaryDirectory() as d:
-        target = os.path.join(d, "tmp")
-        os.mkdir(target)
-        os.chmod(target, 0o777)
-        r = mod.run({"tmp_path": target})
-        check("tmp_sticky_bit: vulnerable(0777 no sticky) -> FAIL", r["passed"] is False)
+        target = os.path.join(d, "login.defs")
+        with open(target, "w") as f:
+            f.write("UMASK 000\n")
+        r = mod.run({"login_defs_path": target})
+        check("default_umask_set: vulnerable(000) -> FAIL", r["passed"] is False)
 
-        os.chmod(target, 0o1777)
-        r = mod.run({"tmp_path": target})
-        check("tmp_sticky_bit: fixed(1777 sticky) -> PASS", r["passed"] is True)
+        with open(target, "w") as f:
+            f.write("UMASK 027\n")
+        r = mod.run({"login_defs_path": target})
+        check("default_umask_set: fixed(027) -> PASS", r["passed"] is True)
 
 
 def test_password_min_days_set():
@@ -211,7 +212,7 @@ def test_cron_writable_script_removed():
         r = mod.run({"script_path": script, "cron_path": cron})
         check("cron_writable_script: vulnerable(0777 + cron ada) -> FAIL", r["passed"] is False)
 
-        os.chmod(script, 0o750)
+        os.chmod(script, 0o444)
         r = mod.run({"script_path": script, "cron_path": cron})
         check("cron_writable_script: script dibetulkan(0750) -> PASS", r["passed"] is True)
 
@@ -238,7 +239,7 @@ if __name__ == "__main__":
     test_backdoor_listener_removed()
     test_ssh_x11_forwarding_disabled()
     test_ssh_max_auth_tries_limited()
-    test_tmp_sticky_bit_set()
+    test_default_umask_set()
     test_password_min_days_set()
     test_sysctl_checks()
     test_unsafe_path_removed()

@@ -34,7 +34,8 @@ export async function GET(req: NextRequest) {
     .from("competitions").select("difficulty").eq("id", compId).maybeSingle();
   const { data: diff } = await db
     .from("difficulties").select("active_check_codes").eq("key", comp?.difficulty ?? "easy").maybeSingle();
-  const activeCodes: string[] = diff?.active_check_codes ?? [];
+  const rawCodes = diff?.active_check_codes;
+  const activeCodes: string[] = typeof rawCodes === "string" ? JSON.parse(rawCodes) : (Array.isArray(rawCodes) ? rawCodes : []);
 
   const { data: checksMeta } = await db
     .from("checks").select("code, title")

@@ -42,7 +42,8 @@ export async function GET(req: NextRequest) {
     .select("active_check_codes")
     .eq("key", comp?.difficulty ?? "easy")
     .maybeSingle();
-  const activeCodes: string[] = diff?.active_check_codes ?? [];
+  const rawCodes = diff?.active_check_codes;
+  const activeCodes: string[] = typeof rawCodes === "string" ? JSON.parse(rawCodes) : (Array.isArray(rawCodes) ? rawCodes : []);
 
   const { data: checks } = await db
     .from("checks")

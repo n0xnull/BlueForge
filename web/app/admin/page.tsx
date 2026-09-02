@@ -242,63 +242,63 @@ export default function Admin() {
                       {parts.map((p) => {
                         const detailOpen = openParticipantId === p.id;
                         return (
-                        <Fragment key={p.id}>
-                          <tr>
-                            <td>
-                              <span style={{ cursor: p.checks?.length ? "pointer" : "default" }}
-                                onClick={() => p.checks?.length && toggleParticipantDetail(p.id)}
-                                title={p.checks?.length ? "Klik untuk lihat rincian soal" : undefined}>
-                                {p.full_name}
-                                {p.checks?.length ? <span className="detail-caret">{detailOpen ? "▲" : "▼"}</span> : null}
-                              </span>
-                              {p.has_anomaly && (
-                                <span className="badge" style={{ marginLeft: 8, background: "rgba(255,93,93,.16)", color: "var(--danger)" }}
-                                  title="Ada soal yang sudah LULUS sebelum panitia klik START -- indikasi peserta mengerjakan lebih dulu (curang/pre-fix). Poinnya sendiri sudah otomatis TIDAK dihitung, ini cuma penanda visual.">
-                                  ⚠ Anomali start
+                          <Fragment key={p.id}>
+                            <tr>
+                              <td>
+                                <span style={{ cursor: p.checks?.length ? "pointer" : "default" }}
+                                  onClick={() => p.checks?.length && toggleParticipantDetail(p.id)}
+                                  title={p.checks?.length ? "Klik untuk lihat rincian soal" : undefined}>
+                                  {p.full_name}
+                                  {p.checks?.length ? <span className="detail-caret">{detailOpen ? "▲" : "▼"}</span> : null}
                                 </span>
-                              )}
-                            </td>
-                            <td className="muted">{p.school || "—"}</td>
-                            <td><span className={"badge " + (p.status === "online" ? "running" : p.status === "disqualified" ? "archived" : "paused")}>{p.status}</span></td>
-                            <td style={{ textAlign: "right" }}>
-                              <div className="actions" style={{ justifyContent: "flex-end" }}>
-                                {p.status === "disqualified" ? (
-                                  <button className="ok sm" onClick={() => partAction("requalify", p.id)}>Batalkan DQ</button>
-                                ) : (
-                                  <button className="warn sm" onClick={() => partAction("disqualify", p.id)}>DQ</button>
+                                {p.has_anomaly && (
+                                  <span className="badge" style={{ marginLeft: 8, background: "rgba(255,93,93,.16)", color: "var(--danger)" }}
+                                    title="Ada soal yang sudah DIKERJAKAN sebelum panitia klik START -- indikasi peserta mengerjakan lebih dulu (curang/pre-fix). Poinnya sendiri sudah otomatis TIDAK dihitung, ini cuma penanda visual.">
+                                    ⚠ Anomali start
+                                  </span>
                                 )}
-                                <button className="danger sm" onClick={() => partAction("remove", p.id)}>Hapus</button>
-                              </div>
-                            </td>
-                          </tr>
-                          {detailOpen && p.checks?.length ? (
-                            <tr className="detail-row">
-                              <td colSpan={4}>
-                                <div className="small muted" style={{ marginBottom: 8 }}>
-                                  {p.checks.filter((c) => c.passed).length} / {p.checks.length} soal selesai
-                                  {p.has_anomaly && (
-                                    <span style={{ color: "var(--danger)" }}> · centang MERAH = lulus sebelum START (tidak dapat poin)</span>
+                              </td>
+                              <td className="muted">{p.school || "—"}</td>
+                              <td><span className={"badge " + (p.status === "online" ? "running" : p.status === "disqualified" ? "archived" : "paused")}>{p.status}</span></td>
+                              <td style={{ textAlign: "right" }}>
+                                <div className="actions" style={{ justifyContent: "flex-end" }}>
+                                  {p.status === "disqualified" ? (
+                                    <button className="ok sm" onClick={() => partAction("requalify", p.id)}>Batalkan DQ</button>
+                                  ) : (
+                                    <button className="warn sm" onClick={() => partAction("disqualify", p.id)}>DQ</button>
                                   )}
-                                </div>
-                                <div className="detail-grid">
-                                  {p.checks.map((c, i) => {
-                                    const anomaly = c.eligible === false;
-                                    const cls = anomaly ? "anomaly" : c.passed ? "pass" : "fail";
-                                    return (
-                                       <div key={c.code} className={"detail-item " + cls}
-                                         title={anomaly ? "Lulus sebelum START -- eligible=false, tidak dapat poin" : undefined}>
-                                         <span className="detail-icon">{anomaly || c.passed ? "✔" : "✗"}</span>
-                                         <span className="detail-no">{i + 1}.</span>
-                                         <span>{c.title}</span>
-                                         {anomaly && <span className="small" style={{ color: "var(--danger)", fontWeight: 700, marginLeft: 4 }}>(Pre-fix)</span>}
-                                       </div>
-                                    );
-                                  })}
+                                  <button className="danger sm" onClick={() => partAction("remove", p.id)}>Hapus</button>
                                 </div>
                               </td>
                             </tr>
-                          ) : null}
-                        </Fragment>
+                            {detailOpen && p.checks?.length ? (
+                              <tr className="detail-row">
+                                <td colSpan={4}>
+                                  <div className="small muted" style={{ marginBottom: 8 }}>
+                                    {p.checks.filter((c) => c.passed).length} / {p.checks.length} soal selesai
+                                    {p.has_anomaly && (
+                                      <span style={{ color: "var(--danger)" }}> · centang MERAH = dikerjakan sebelum START (tidak dapat poin)</span>
+                                    )}
+                                  </div>
+                                  <div className="detail-grid">
+                                    {p.checks.map((c, i) => {
+                                      const anomaly = c.eligible === false;
+                                      const cls = anomaly ? "anomaly" : c.passed ? "pass" : "fail";
+                                      return (
+                                        <div key={c.code} className={"detail-item " + cls}
+                                          title={anomaly ? "Dikerjakan sebelum START -- eligible=false, tidak dapat poin" : undefined}>
+                                          <span className="detail-icon">{anomaly || c.passed ? "✔" : "✗"}</span>
+                                          <span className="detail-no">{i + 1}.</span>
+                                          <span>{c.title}</span>
+                                          {anomaly && <span className="small" style={{ color: "var(--danger)", fontWeight: 700, marginLeft: 4 }}>(Pre-fix)</span>}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </td>
+                              </tr>
+                            ) : null}
+                          </Fragment>
                         );
                       })}
                     </tbody>

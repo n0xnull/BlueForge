@@ -54,7 +54,7 @@ insert into checks (code, title, description, points, is_penalty, must_stay_pass
     null,null,'["fitcom"]'),
   ('ssh_x11_forwarding_disabled','Nonaktifkan X11 Forwarding SSH','Fitur penerusan antarmuka grafis (X11 Forwarding) pada SSH harus dinonaktifkan untuk mencegah potensi pencurian sesi tampilan.',10,false,false,'ssh',
     null,null,'["fitcom"]'),
-  ('tmp_sticky_bit_set','Pasang Kembali Sticky Bit pada /tmp','Direktori penyimpanan sementara (/tmp) harus memiliki atribut sticky bit aktif demi mencegah pengrusakan berkas antar pengguna.',10,false,false,'permission',
+  ('default_umask_set','Terapkan Nilai Umask Default Sistem yang Aman','Kebijakan hak akses berkas bawaan sistem (UMASK) pada berkas /etc/login.defs harus dikonfigurasikan agar tidak memberikan izin akses berlebihan pada berkas baru.',10,false,false,'policy',
     null,null,'["fitcom"]'),
   ('password_min_days_set','Terapkan Batas Minimum Pergantian Kata Sandi','Kebijakan kata sandi harus menetapkan batas waktu minimum antar perubahan kata sandi untuk mencegah manipulasi riwayat kata sandi.',10,false,false,'policy',
     null,null,'["fitcom"]'),
@@ -115,7 +115,7 @@ insert into difficulties (key, name, description, active_check_codes, hint_polic
     '["ssh_root_disabled","ufw_enabled","telnet_disabled","rogue_user_removed","shadow_perm","passwd_perm","empty_password_removed","uid0_unique","root_home_perm","password_max_days","ssh_permitempty_disabled","world_writable_removed","suid_bash_removed","rogue_sudo_removed","cron_backdoor_removed"]',
     'none', 1.5, 3600),
   ('fitcom','FITCOM','Preset lomba FITCOM Universitas Dinamika. 30 soal (superset penuh, urut mudah->sulit), hint guiding utk ~25% soal saja, durasi default 2 jam 30 menit.',
-    '["ssh_root_disabled","ufw_enabled","telnet_disabled","ftp_disabled","rogue_user_removed","shadow_perm","passwd_perm","tmp_sticky_bit_set","ssh_x11_forwarding_disabled","ssh_max_auth_tries_limited","password_min_days_set","empty_password_removed","uid0_unique","root_home_perm","password_max_days","ssh_permitempty_disabled","syn_cookies_enabled","icmp_redirects_disabled","source_routing_disabled","aslr_enabled","core_dump_restricted","world_writable_removed","suid_bash_removed","rogue_sudo_removed","cron_backdoor_removed","duplicate_uid_removed","rogue_crontab_removed","cron_writable_script_removed","unsafe_path_removed","backdoor_listener_removed"]',
+    '["ssh_root_disabled","ufw_enabled","telnet_disabled","ftp_disabled","rogue_user_removed","shadow_perm","passwd_perm","default_umask_set","ssh_x11_forwarding_disabled","ssh_max_auth_tries_limited","password_min_days_set","empty_password_removed","uid0_unique","root_home_perm","password_max_days","ssh_permitempty_disabled","syn_cookies_enabled","icmp_redirects_disabled","source_routing_disabled","aslr_enabled","core_dump_restricted","world_writable_removed","suid_bash_removed","rogue_sudo_removed","cron_backdoor_removed","duplicate_uid_removed","rogue_crontab_removed","cron_writable_script_removed","unsafe_path_removed","backdoor_listener_removed"]',
     'full', 1.0, 9000)
 on conflict (key) do update set
   name=excluded.name, description=excluded.description,

@@ -42,19 +42,17 @@ export async function GET(req: NextRequest) {
     .eq("key", comp.difficulty)
     .maybeSingle();
 
+  const rawCodes = diff?.active_check_codes;
+  const activeCodes: string[] = typeof rawCodes === "string" ? JSON.parse(rawCodes) : (Array.isArray(rawCodes) ? rawCodes : []);
+
   return NextResponse.json({
     status: comp.status,
-    // Status peserta sendiri (registered|online|offline|disqualified) --
-    // dipakai agent utk tahu dirinya sudah didiskualifikasi panitia dan
-    // berhenti mengirim skor / menampilkan banner di kiosk lokal, bukan
-    // cuma diam-diam ditolak server tanpa penjelasan (lihat juga
-    // perbaikan di /api/v1/score & /api/v1/heartbeat).
     participant_status: participant.status,
     server_time_ms: Date.now(),
     ends_at_ms: comp.ends_at ? new Date(comp.ends_at).getTime() : null,
     difficulty: comp.difficulty,
     hint_policy: comp.hint_policy,
     penalty_weight: comp.penalty_weight,
-    active_check_codes: diff?.active_check_codes ?? [],
+    active_check_codes: activeCodes,
   }, { headers: NO_CACHE });
 }

@@ -261,7 +261,14 @@ class Runtime:
 
             with self.lock:
                 self.server_status = state.get("status", "waiting")
-                self.active_codes = state.get("active_check_codes", []) or self.active_codes
+                raw_codes = state.get("active_check_codes", [])
+                if isinstance(raw_codes, str):
+                    try:
+                        raw_codes = json.loads(raw_codes)
+                    except Exception:
+                        raw_codes = []
+                if isinstance(raw_codes, list) and raw_codes:
+                    self.active_codes = raw_codes
                 self.hint_policy = state.get("hint_policy", self.hint_policy)
                 self.difficulty = state.get("difficulty", self.difficulty)
                 self.ends_at_ms = state.get("ends_at_ms", self.ends_at_ms)

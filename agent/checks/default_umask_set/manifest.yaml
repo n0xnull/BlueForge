@@ -1,0 +1,9 @@
+code: default_umask_set
+title: "Terapkan Nilai Umask Default Sistem yang Aman"
+description: "Kebijakan hak akses berkas bawaan sistem (UMASK) pada berkas /etc/login.defs harus dikonfigurasikan agar tidak memberikan izin akses berlebihan pada berkas baru."
+points: 10
+is_penalty: false
+must_stay_passing: false
+category: policy
+difficulty_tags: [fitcom]
+schema_version: "1.0"
